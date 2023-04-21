@@ -1,0 +1,22 @@
+{
+	"name": "ppsl-cd-api",
+	"packageManager": "yarn@3.5.0",
+	"type": "module",
+	"main": "src/server.js",
+	"dependencies": {
+		"@auth/core": "^0.7.0",
+		"@fastify/helmet": "^10.1.0",
+		"@next-auth/prisma-adapter": "^1.0.6",
+		"@prisma/client": "^4.13.0",
+		"dotenv": "^16.0.3",
+		"fastify": "^4.15.0",
+		"fastify-plugin": "^4.5.0"
+	},
+	"devDependencies": {
+		"prisma": "^4.13.0",
+		"typescript": "^5.0.4"
+	},
+	"resolutions": {
+		".prisma": "link:node-modules/.prisma"
+	}
+}
