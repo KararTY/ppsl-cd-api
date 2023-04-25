@@ -119,6 +119,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fastify/middie@npm:^8.1.0":
+  version: 8.1.0
+  resolution: "@fastify/middie@npm:8.1.0"
+  dependencies:
+    fastify-plugin: ^4.0.0
+    path-to-regexp: ^6.1.0
+    reusify: ^1.0.4
+  checksum: 9b7821f5236cb89aa7d9dba2ee2901a369f734c137cd739f3757fee1db16d3a85263c639b7674e79660350f962e166139dbd075b37aef7f29e2a71b112d2f1de
+  languageName: node
+  linkType: hard
+
 "@humanwhocodes/config-array@npm:^0.11.8":
   version: 0.11.8
   resolution: "@humanwhocodes/config-array@npm:0.11.8"
@@ -192,6 +203,13 @@ __metadata:
   version: 0.11.0
   resolution: "@pkgjs/parseargs@npm:0.11.0"
   checksum: 6ad6a00fc4f2f2cfc6bff76fb1d88b8ee20bc0601e18ebb01b6d4be583733a860239a521a7fbca73b612e66705078809483549d2b18f370eb346c5155c8e4a0f
+  languageName: node
+  linkType: hard
+
+"@polka/send-type@npm:^0.5.2":
+  version: 0.5.2
+  resolution: "@polka/send-type@npm:0.5.2"
+  checksum: 37dc6345347ee5b262d0b5e8aac906b449ac9793c01632b8a97b3d0b1f4f8767c8aa457b5c2bef94f6dd84a7d48cb7b547244eee141de43867529b5934160bb0
   languageName: node
   linkType: hard
 
@@ -615,6 +633,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"authey@npm:^0.4.2":
+  version: 0.4.2
+  resolution: "authey@npm:0.4.2"
+  dependencies:
+    "@polka/send-type": ^0.5.2
+    node-fetch-native: ^1.0.2
+    requrl: ^3.0.2
+    set-cookie-parser: ^2.6.0
+  peerDependencies:
+    "@auth/core": ^0.5.0
+  checksum: 8f8f3033d4958cfe0faf48751f5eba4f2f74411c57e31b0334ae2c9f8ad78419ca7275ce29026192cb4b3f7f0cff6e13bdb6c069c5d3e86f6a4e3f9cb5ad1cae
+  languageName: node
+  linkType: hard
+
 "available-typed-arrays@npm:^1.0.5":
   version: 1.0.5
   resolution: "available-typed-arrays@npm:1.0.5"
@@ -931,6 +963,13 @@ __metadata:
   dependencies:
     esutils: ^2.0.2
   checksum: fd7673ca77fe26cd5cba38d816bc72d641f500f1f9b25b83e8ce28827fe2da7ad583a8da26ab6af85f834138cf8dae9f69b0cd6ab925f52ddab1754db44d99ce
+  languageName: node
+  linkType: hard
+
+"dotenv-expand@npm:^10.0.0":
+  version: 10.0.0
+  resolution: "dotenv-expand@npm:10.0.0"
+  checksum: 2a38b470efe0abcb1ac8490421a55e1d764dc9440fd220942bce40965074f3fb00b585f4346020cb0f0f219966ee6b4ee5023458b3e2953fe5b3214de1b314ee
   languageName: node
   linkType: hard
 
@@ -1433,7 +1472,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fastify-plugin@npm:^4.2.1, fastify-plugin@npm:^4.5.0":
+"fastify-next-auth@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "fastify-next-auth@npm:0.3.0"
+  dependencies:
+    "@fastify/middie": ^8.1.0
+    authey: ^0.4.2
+    fastify-plugin: ^4.5.0
+  peerDependencies:
+    "@auth/core": ^0.5.0
+  checksum: 084810a4bc66db361306485e2216f31778ed0d68bd192b7e0cd3b910f2fda279a2fa04edda582784743f2915594f647128cc7da8f558665cb87f5185d40c7470
+  languageName: node
+  linkType: hard
+
+"fastify-plugin@npm:^4.0.0, fastify-plugin@npm:^4.2.1, fastify-plugin@npm:^4.5.0":
   version: 4.5.0
   resolution: "fastify-plugin@npm:4.5.0"
   checksum: 3cc36a43ec72ee9974d3cd1989027e77b277b0994e4fc02ed4e6492aabd83a0be66f14fdec56e60d9a41911ea1ff1ea70c9d957a87e46bcdb8fedd859f4988fe
@@ -2431,6 +2483,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-fetch-native@npm:^1.0.2":
+  version: 1.1.0
+  resolution: "node-fetch-native@npm:1.1.0"
+  checksum: 65b85ba8d671f7d4b8a4c8eb70dfd3864b4d04ab771e15aeadc613011cd4e4568c4a0a3f1aebdd37410cd2d75c65ab3e538eedb1732fc6b33ee093167e22bbe0
+  languageName: node
+  linkType: hard
+
 "normalize-url@npm:^6.0.1":
   version: 6.1.0
   resolution: "normalize-url@npm:6.1.0"
@@ -2665,6 +2724,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"path-to-regexp@npm:^6.1.0":
+  version: 6.2.1
+  resolution: "path-to-regexp@npm:6.2.1"
+  checksum: f0227af8284ea13300f4293ba111e3635142f976d4197f14d5ad1f124aebd9118783dd2e5f1fe16f7273743cc3dbeddfb7493f237bb27c10fdae07020cc9b698
+  languageName: node
+  linkType: hard
+
 "path-type@npm:^4.0.0":
   version: 4.0.0
   resolution: "path-type@npm:4.0.0"
@@ -2744,7 +2810,9 @@ __metadata:
     "@prisma/client": ^4.13.0
     "@yarnpkg/pnpify": ^4.0.0-rc.42
     dotenv: ^16.0.3
+    dotenv-expand: ^10.0.0
     fastify: ^4.15.0
+    fastify-next-auth: ^0.3.0
     fastify-plugin: ^4.5.0
     prisma: ^4.13.0
     rimraf: ^5.0.0
@@ -2918,6 +2986,13 @@ __metadata:
   version: 2.0.2
   resolution: "require-from-string@npm:2.0.2"
   checksum: a03ef6895445f33a4015300c426699bc66b2b044ba7b670aa238610381b56d3f07c686251740d575e22f4c87531ba662d06937508f0f3c0f1ddc04db3130560b
+  languageName: node
+  linkType: hard
+
+"requrl@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "requrl@npm:3.0.2"
+  checksum: 84fbaf4326050de145fdb6037b77416c649453fa1cce19df25776e13b5b89a119224213c2d786acda088b5724b9e085a41aa6d59bf9c3fa19345fc49c7902c7f
   languageName: node
   linkType: hard
 
@@ -3102,7 +3177,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"set-cookie-parser@npm:^2.4.1":
+"set-cookie-parser@npm:^2.4.1, set-cookie-parser@npm:^2.6.0":
   version: 2.6.0
   resolution: "set-cookie-parser@npm:2.6.0"
   checksum: bf11ebc594c53d84588f1b4c04f1b8ce14e0498b1c011b3d76b5c6d5aac481bbc3f7c5260ec4ce99bdc1d9aed19f9fc315e73166a36ca74d0f12349a73f6bdc9

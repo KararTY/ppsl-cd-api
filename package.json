@@ -1,31 +1,33 @@
 {
-	"name": "ppsl-cd-api",
-	"packageManager": "yarn@3.5.0",
-	"type": "module",
-	"main": "src/server.js",
-	"scripts": {
-		"start": "node ./src/server.js",
-		"prisma:generate": "yarn rimraf ./.prisma && yarn pnpify prisma generate",
-		"prisma:db-push": "yarn pnpify prisma db push",
-		"prisma:migrate-reset": "yarn pnpify prisma migrate reset",
-		"prisma:migrate-dev": "yarn pnpify prisma migrate dev",
-		"lint": "standard",
+  "name": "ppsl-cd-api",
+  "packageManager": "yarn@3.5.0",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node --experimental-specifier-resolution=node --trace-warnings ./src/server.js",
+    "prisma:generate": "yarn rimraf ./.prisma && yarn pnpify prisma generate",
+    "prisma:db-push": "yarn pnpify prisma db push",
+    "prisma:migrate-reset": "yarn pnpify prisma migrate reset",
+    "prisma:migrate-dev": "yarn pnpify prisma migrate dev",
+    "lint": "standard",
     "lintfix": "standard --fix"
-	},
-	"dependencies": {
-		"@auth/core": "^0.7.0",
-		"@fastify/helmet": "^10.1.0",
-		"@next-auth/prisma-adapter": "^1.0.6",
-		"@prisma/client": "^4.13.0",
-		"dotenv": "^16.0.3",
-		"fastify": "^4.15.0",
-		"fastify-plugin": "^4.5.0"
-	},
-	"devDependencies": {
-		"@yarnpkg/pnpify": "^4.0.0-rc.42",
-		"prisma": "^4.13.0",
-		"rimraf": "^5.0.0",
-		"standard": "^17.0.0",
-		"typescript": "^5.0.4"
-	}
+  },
+  "dependencies": {
+    "@auth/core": "^0.7.0",
+    "@fastify/helmet": "^10.1.0",
+    "@next-auth/prisma-adapter": "^1.0.6",
+    "@prisma/client": "^4.13.0",
+    "dotenv": "^16.0.3",
+    "dotenv-expand": "^10.0.0",
+    "fastify": "^4.15.0",
+    "fastify-next-auth": "^0.3.0",
+    "fastify-plugin": "^4.5.0"
+  },
+  "devDependencies": {
+    "@yarnpkg/pnpify": "^4.0.0-rc.42",
+    "prisma": "^4.13.0",
+    "rimraf": "^5.0.0",
+    "standard": "^17.0.0",
+    "typescript": "^5.0.4"
+  }
 }

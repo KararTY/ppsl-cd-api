@@ -8,6 +8,7 @@ CREATE TABLE "Account" (
     "refresh_token" TEXT,
     "access_token" TEXT,
     "expires_at" INTEGER,
+    "expires_in" INTEGER,
     "token_type" TEXT,
     "scope" TEXT,
     "id_token" TEXT,
@@ -32,6 +33,7 @@ CREATE TABLE "User" (
     "name" TEXT,
     "email" TEXT,
     "emailVerified" TIMESTAMP(3),
+    "image" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
