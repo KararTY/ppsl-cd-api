@@ -3,6 +3,15 @@
 	"packageManager": "yarn@3.5.0",
 	"type": "module",
 	"main": "src/server.js",
+	"scripts": {
+		"start": "node ./src/server.js",
+		"prisma:generate": "yarn rimraf ./.prisma && yarn pnpify prisma generate",
+		"prisma:db-push": "yarn pnpify prisma db push",
+		"prisma:migrate-reset": "yarn pnpify prisma migrate reset",
+		"prisma:migrate-dev": "yarn pnpify prisma migrate dev",
+		"lint": "standard",
+    "lintfix": "standard --fix"
+	},
 	"dependencies": {
 		"@auth/core": "^0.7.0",
 		"@fastify/helmet": "^10.1.0",
@@ -13,10 +22,10 @@
 		"fastify-plugin": "^4.5.0"
 	},
 	"devDependencies": {
+		"@yarnpkg/pnpify": "^4.0.0-rc.42",
 		"prisma": "^4.13.0",
+		"rimraf": "^5.0.0",
+		"standard": "^17.0.0",
 		"typescript": "^5.0.4"
-	},
-	"resolutions": {
-		".prisma": "link:node-modules/.prisma"
 	}
 }

@@ -5,5 +5,9 @@
   },
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "npm.packageManager": "yarn",
-  "typescript.tsdk": ".yarn/sdks/typescript/lib"
+  "typescript.tsdk": ".yarn/sdks/typescript/lib",
+  "standard.enable": true,
+  "standard.autoFixOnSave": true,
+  "standard.validate": ["javascript"],
+  "javascript.validate.enable": false
 }
