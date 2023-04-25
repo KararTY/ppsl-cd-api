@@ -1,5 +1,6 @@
 {
   "name": "ppsl-cd-api",
+  "license": "AGPL-3.0-only",
   "packageManager": "yarn@3.5.0",
   "type": "module",
   "main": "src/server.js",
