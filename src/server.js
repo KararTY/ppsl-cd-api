@@ -15,13 +15,23 @@ import authPlugin from './plugins/auth/index.js'
 import userRoutes from './modules/user/user.route.js'
 import { userSchemas } from './modules/user/user.schema.js'
 
+const envToLogger = {
+  development: {
+    transport: {
+      target: 'pino-pretty'
+    }
+  },
+  production: true,
+  test: false
+}
+
 /**
  * @type {import('../package.json')}
  */
 const packageJSON = JSON.parse(readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), { encoding: 'utf-8' }))
 
 const fastify = Fastify({
-  logger: true
+  logger: envToLogger[process.env.NODE_ENV] ?? true
 })
 
 async function setup () {

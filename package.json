@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "@yarnpkg/pnpify": "^4.0.0-rc.42",
+    "pino-pretty": "^10.0.0",
     "prisma": "^4.13.0",
     "rimraf": "^5.0.0",
     "standard": "^17.0.0",
