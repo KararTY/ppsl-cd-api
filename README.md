@@ -6,12 +6,12 @@ Based\* on [@TomDoesTech](https://github.com/TomDoesTech)'s video titled [Build 
 
 ## Libraries in use
 
-* Yarn
-* `standard/standard`
-* Fastify
-* Prisma
-* Auth.js through `fastify-next-auth` & `@next-auth/prisma-adapter`
-<!--* `fastify-zod` -->
+* **Yarn** - Package manager.
+* **`standard/standard`** - Code formatter & linter.
+* **Fastify** - Web server.
+* **Prisma** - TypeScript ORM.
+* **Auth.js through `fastify-next-auth` & `@next-auth/prisma-adapter`** - SSO authentication.
+* **`zod` & `fastify-zod`** - Request & response validation.
 
 ## Setup
 
