@@ -12,12 +12,13 @@ const fastify = Fastify({
   logger: true
 })
 
-fastify.get('/healthcheck', async () => {
-  return 'OK'
-})
-
 async function setup () {
+  await fastify.get('/healthcheck', async () => {
+    return 'OK'
+  })
+
   await fastify.register(prismaPlugin)
+
   await fastify.register(helmet, {
     contentSecurityPolicy: {
       directives: {

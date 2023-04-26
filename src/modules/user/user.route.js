@@ -11,10 +11,10 @@ async function userRoutes (fastify) {
   }
 
   fastify.get('/', {
+    preHandler: [fastify.authenticate],
     schema: {
       response: {
-        200: $userSchemasRef('userResponseSchema'),
-        401: $userSchemasRef('userUnauthenticatedResponseSchema')
+        200: $userSchemasRef('userResponseSchema')
       }
     }
   }, getUser)

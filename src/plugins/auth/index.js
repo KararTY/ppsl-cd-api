@@ -6,6 +6,23 @@ import { Google } from './providers/google.js'
 import { GitHub } from './providers/github.js'
 
 /**
+  * @param {import("fastify").FastifyRequest} request
+  * @param {import("fastify").FastifyReply} reply
+  */
+export async function authenticate (request, reply, next) {
+  const session = await request.server.getSession(request)
+
+  if (!session?.user) {
+    const error = new Error()
+    error.statusCode = 401
+    next(error)
+  }
+
+  request.session = session
+  next()
+}
+
+/**
  * @type {import('fastify').FastifyPluginAsync}
  */
 const authPlugin = fp(async (fastify, _) => {
@@ -15,6 +32,8 @@ const authPlugin = fp(async (fastify, _) => {
     providers: [Google, GitHub],
     adapter: PrismaAdapter(fastify.prisma)
   })
+
+  await fastify.decorate('authenticate', authenticate)
 })
 
 export default authPlugin
