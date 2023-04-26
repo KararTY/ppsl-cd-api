@@ -15,7 +15,7 @@ export const userUnauthenticatedResponseSchema = z.object({
   error: z.string()
 })
 
-export const { schemas: userSchemas, $ref: $userSchemasRef } = buildJsonSchemas({
+export const { schemas: userSchemas, $ref } = buildJsonSchemas({
   userResponseSchema,
   userUnauthenticatedResponseSchema
 })

@@ -1,5 +1,6 @@
 {
   "name": "ppsl-cd-api",
+  "version": "0.1.0",
   "license": "AGPL-3.0-only",
   "packageManager": "yarn@3.5.0",
   "type": "module",
@@ -16,6 +17,8 @@
   "dependencies": {
     "@auth/core": "^0.7.0",
     "@fastify/helmet": "^10.1.0",
+    "@fastify/swagger": "^8.3.1",
+    "@fastify/swagger-ui": "^1.8.0",
     "@next-auth/prisma-adapter": "^1.0.6",
     "@prisma/client": "^4.13.0",
     "dotenv": "^16.0.3",
