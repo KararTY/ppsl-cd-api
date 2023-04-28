@@ -15,6 +15,8 @@ import authPlugin from './plugins/auth/index.js'
 
 import userRoutes from './modules/user/user.route.js'
 import { userSchemas } from './modules/user/user.schema.js'
+import postRoutes from './modules/post/post.route.js'
+import { postSchemas } from './modules/post/post.schema.js'
 
 const envToLogger = {
   development: {
@@ -44,7 +46,7 @@ async function setup () {
     }
   })
 
-  for (const schema of [...userSchemas]) {
+  for (const schema of [...userSchemas, ...postSchemas]) {
     await fastify.addSchema(schema)
   }
 
@@ -69,6 +71,7 @@ async function setup () {
   fastify.register(authPlugin)
 
   fastify.register(userRoutes, { prefix: 'api/users' })
+  fastify.register(postRoutes, { prefix: 'api/posts' })
 
   try {
     await fastify.listen({ port: process.env.PORT, host: '0.0.0.0' })
