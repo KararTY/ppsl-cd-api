@@ -1,4 +1,5 @@
-import '../env.js'
+#!/usr/bin/env node
+import './env.js'
 
 import { readFileSync } from 'fs'
 import { fileURLToPath } from 'url'
@@ -75,11 +76,11 @@ async function setup () {
     await fastify.close()
     await fastify.prisma.$disconnect()
 
-    console.error(error)
+    fastify.log.fatal(error)
     process.exit(1)
   }
 
-  console.log('%s@%s ONLINE\nListening on port: %s', packageJSON.name, packageJSON.version, process.env.PORT)
+  fastify.log.info('%s@%s ONLINE', packageJSON.name, packageJSON.version)
 }
 
 setup()

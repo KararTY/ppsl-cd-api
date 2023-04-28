@@ -18,7 +18,7 @@ export const userUnauthenticatedResponseSchema = z.object({
 export const { schemas: userSchemas, $ref } = buildJsonSchemas({
   userResponseSchema,
   userUnauthenticatedResponseSchema
-})
+}, { $id: 'user' })
 
 /**
  * @typedef {z.infer<typeof userCore>} UserCoreSchema

@@ -4,7 +4,7 @@ import { $ref } from './user.schema.js'
 /**
  * @param {import("fastify").FastifyInstance} fastify
  */
-async function userRoutes (fastify) {
+export default async function userRoutes (fastify) {
   await fastify.get('/', {
     preHandler: [fastify.authenticate],
     schema: {
@@ -14,5 +14,3 @@ async function userRoutes (fastify) {
     }
   }, getUser)
 }
-
-export default userRoutes
