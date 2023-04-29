@@ -1,13 +1,8 @@
-/**
- * @typedef {import("fastify").FastifyRequest} request
- * @typedef {import("fastify").FastifyReply} reply
- */
-
 import { allPostsPaginated, postById, postByPostId } from './post.service'
 
 /**
- * @param {request} request
- * @param {reply} reply
+ * @param {Fastify.Request} request
+ * @param {Fastify.Reply} reply
  */
 export async function getPosts (request, reply) {
   const { cursor } = request.query
@@ -27,8 +22,8 @@ export async function getPosts (request, reply) {
 }
 
 /**
- * @param {request} request
- * @param {reply} reply
+ * @param {Fastify.Request} request
+ * @param {Fastify.Reply} reply
  */
 export async function getPostById (request, reply) {
   const { id } = request.params
@@ -40,8 +35,8 @@ export async function getPostById (request, reply) {
 }
 
 /**
- * @param {request} request
- * @param {reply} reply
+ * @param {Fastify.Request} request
+ * @param {Fastify.Reply} reply
  */
 export async function getPostByPostId (request, reply) {
   const { postId } = request.params
@@ -54,8 +49,8 @@ export async function getPostByPostId (request, reply) {
 }
 
 /**
- * @param {request} request
- * @param {reply} reply
+ * @param {Fastify.Request} request
+ * @param {Fastify.Reply} reply
  */
 // export async function postPost (request, reply) {
 //   const { postId } = request.params

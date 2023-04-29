@@ -1,4 +1,4 @@
-import { UserCoreSchema } from "../../modules/user/user.schema.js";
+import { UserSessionSchema } from "../../modules/user/user.schema.js";
 import { authenticate } from "./index.js";
 
 declare module 'fastify' {
@@ -8,7 +8,7 @@ declare module 'fastify' {
 
 	interface FastifyRequest {
 		session?: {
-			user: UserCoreSchema,
+			user: UserSessionSchema,
 			expires: string
 		}
 	}

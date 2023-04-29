@@ -1,8 +1,4 @@
 /**
- * @typedef {import('../../../.prisma/client').PrismaClient} PrismaClient
- */
-
-/**
  * @param {PrismaClient} prisma
  */
 export async function allPostsPaginated (prisma, cursor) {

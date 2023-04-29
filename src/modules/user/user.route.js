@@ -1,16 +1,16 @@
-import { getUser } from './user.controller.js'
+import { getAuthenticatedUser } from './user.controller.js'
 import { $ref } from './user.schema.js'
 
 /**
- * @param {import("fastify").FastifyInstance} fastify
+ * @param {Fastify.Instance} fastify
  */
 export default async function userRoutes (fastify) {
-  await fastify.get('/', {
+  await fastify.get('/session', {
     preHandler: [fastify.authenticate],
     schema: {
       response: {
-        200: $ref('userResponseSchema')
+        200: $ref('userSessionResponseSchema')
       }
     }
-  }, getUser)
+  }, getAuthenticatedUser)
 }

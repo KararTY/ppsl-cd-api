@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "typeRoots": ["src/**/*.d.ts"]
+  },
+  "include": [
+    // Add all paths you want intellisense to work
+    "src/**/*",
+  ]
+}

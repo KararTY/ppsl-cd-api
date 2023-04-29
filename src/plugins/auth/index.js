@@ -6,9 +6,9 @@ import { Google } from './providers/google.js'
 import { GitHub } from './providers/github.js'
 
 /**
-  * @param {import("fastify").FastifyRequest} request
-  * @param {import("fastify").FastifyReply} reply
-  */
+ * @param {Fastify.Request} request
+ * @param {Fastify.Reply} reply
+ */
 export async function authenticate (request, reply, next) {
   const session = await request.server.getSession(request)
 

@@ -2,7 +2,7 @@ import { getPostById, getPostByPostId, getPosts, postPost } from './post.control
 import { $ref } from './post.schema.js'
 
 /**
- * @param {import("fastify").FastifyInstance} fastify
+ * @param {Fastify.Instance} fastify
  */
 export default async function postRoutes (fastify) {
   await fastify.get('/', {
