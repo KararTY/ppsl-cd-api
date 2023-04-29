@@ -29,7 +29,7 @@ export async function getPostById (request, reply) {
   const { id } = request.params
   const res = await postById(request.server.prisma, id)
 
-  if (!res) return reply.code(404).send({ error: 'Not found' })
+  if (!res) return reply.callNotFound()
 
   return res
 }
@@ -43,7 +43,7 @@ export async function getPostByPostId (request, reply) {
 
   const res = await postByPostId(request.server.prisma, postId)
 
-  if (!res) return reply.code(404).send({ error: 'Not found' })
+  if (!res) return reply.callNotFound()
 
   return res
 }

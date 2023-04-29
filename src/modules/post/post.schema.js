@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { buildJsonSchemas } from 'fastify-zod'
 
-const postCore = z.object({
+export const postCore = z.object({
   id: z.string(),
   postId: z.string(),
 
