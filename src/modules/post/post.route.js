@@ -1,4 +1,4 @@
-import { getPostById, getPostByPostId, getPosts, postPost } from './post.controller.js'
+import { getPostById, getPostByPostId, getPosts } from './post.controller.js'
 import { $ref } from './post.schema.js'
 
 /**
@@ -21,7 +21,7 @@ export default async function postRoutes (fastify) {
     }
   }, getPostById)
 
-  await fastify.get('/post/:id', {
+  await fastify.get('/post/:postId', {
     schema: {
       response: {
         200: $ref('postResponseSchema')
