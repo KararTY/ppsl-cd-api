@@ -1,6 +1,5 @@
 import fp from 'fastify-plugin'
-import Prisma from '../../../.prisma/client/index.js' // Generated with prisma:generate
-const { PrismaClient } = Prisma
+import { PrismaClient } from '../../../.prisma/client/index.js' // Generated with prisma:generate
 
 /**
  * @type {import('fastify').FastifyPluginAsync} Prisma Fastify Plugin
