@@ -15,11 +15,10 @@ export async function authenticate (request, reply, next) {
   if (!session?.user) {
     const error = new Error()
     error.statusCode = 401
-    next(error)
+    return error
   }
 
   request.session = session
-  next()
 }
 
 /**
@@ -30,7 +29,16 @@ const authPlugin = fp(async (fastify, _) => {
     secret: process.env.AUTH_SECRET,
     trustHost: true,
     providers: [Google, GitHub],
-    adapter: PrismaAdapter(fastify.prisma)
+    adapter: PrismaAdapter(fastify.prisma),
+    callbacks: {
+      async session ({ session, token, user }) {
+        if (session.user) {
+          session.user.id = user.id
+        }
+
+        return session
+      }
+    }
   })
 
   await fastify.decorate('authenticate', authenticate)

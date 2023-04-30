@@ -17,7 +17,7 @@ export const userCorePublic = userCore.omit({ id: true, email: true })
 // Responses
 
 export const userSessionResponseSchema = z.object({
-  user: userCore.omit({ id: true })
+  user: userCore
 })
 export const userProfileResponseSchema = userCorePublic
 
@@ -29,7 +29,7 @@ export const { schemas: userSchemas, $ref } = buildJsonSchemas({
 }, { $id: 'user' })
 
 // Used for IDE typings
-const userSessionSchema = userCore.omit({ id: true }) // eslint-disable-line
+const userSessionSchema = userCore // eslint-disable-line
 
 /**
  * @typedef {z.infer<typeof userCore>} UserCoreSchema
