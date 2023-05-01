@@ -74,7 +74,7 @@ async function setup () {
   fastify.register(postRoutes, { prefix: 'api/posts' })
 
   try {
-    await fastify.listen({ port: process.env.PORT, host: '0.0.0.0' })
+    await fastify.listen({ port: process.env.PORT, host: process.env.HOST || '0.0.0.0' })
   } catch (error) {
     await fastify.close()
     await fastify.prisma.$disconnect()
