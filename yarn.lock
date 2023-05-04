@@ -14,9 +14,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@auth/core@npm:^0.7.0":
-  version: 0.7.0
-  resolution: "@auth/core@npm:0.7.0"
+"@auth/core@npm:^0.7.1":
+  version: 0.7.1
+  resolution: "@auth/core@npm:0.7.1"
   dependencies:
     "@panva/hkdf": ^1.0.4
     cookie: 0.5.0
@@ -29,7 +29,7 @@ __metadata:
   peerDependenciesMeta:
     nodemailer:
       optional: true
-  checksum: 808f2b7b10459b34e90b1da0c355d6b310559061b1c520760e9e5030a2bd9f62256dff6dd333e7026d1ae9b67d313787ee50bc3d6cd4ed29b484f05733b3ff3a
+  checksum: 77a62d28039066e8ba4c078d7eece3e66459e1a71733bf1401ea10da594fa3f8d477d6102f85f0803e3e5551696118da1a885346eaf2c8f3beecd22c50cf957b
   languageName: node
   linkType: hard
 
@@ -116,24 +116,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fastify/helmet@npm:^10.1.0":
-  version: 10.1.0
-  resolution: "@fastify/helmet@npm:10.1.0"
-  dependencies:
-    fastify-plugin: ^4.2.1
-    helmet: ^6.0.0
-  checksum: a2260ea660157a8c55af6a6ad82bcb7999c453fee7b9ff21377c6b2605351dfc8a36788742b7096e1141e83b539aed48ff44a9a5ac08b86257184abb81d22883
-  languageName: node
-  linkType: hard
-
-"@fastify/middie@npm:^8.1.0":
-  version: 8.1.0
-  resolution: "@fastify/middie@npm:8.1.0"
+"@fastify/middie@npm:^8.2.0":
+  version: 8.2.0
+  resolution: "@fastify/middie@npm:8.2.0"
   dependencies:
     fastify-plugin: ^4.0.0
     path-to-regexp: ^6.1.0
     reusify: ^1.0.4
-  checksum: 9b7821f5236cb89aa7d9dba2ee2901a369f734c137cd739f3757fee1db16d3a85263c639b7674e79660350f962e166139dbd075b37aef7f29e2a71b112d2f1de
+  checksum: c7ec4515a4f18d44d2c493149c84cb1765be2df829c36bcc0995a0c4cc09fa5826701393220c2e2bb0544cd6ed0f15d5b1e42263d62825076aab0f0fcd92a19d
   languageName: node
   linkType: hard
 
@@ -165,7 +155,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fastify/swagger-ui@npm:^1.7.0, @fastify/swagger-ui@npm:^1.8.0":
+"@fastify/swagger-ui@npm:^1.7.0":
   version: 1.8.0
   resolution: "@fastify/swagger-ui@npm:1.8.0"
   dependencies:
@@ -175,6 +165,19 @@ __metadata:
     rfdc: ^1.3.0
     yaml: ^2.1.3
   checksum: 86d272f60a25b094a1df121502df709fd28f774cbab12389652b945e6e52ff9bf2e5a2d926b2447a716cc6c9f325862ee22b25564e4a0c5bb597c7bfff7fb4dd
+  languageName: node
+  linkType: hard
+
+"@fastify/swagger-ui@npm:^1.8.1":
+  version: 1.8.1
+  resolution: "@fastify/swagger-ui@npm:1.8.1"
+  dependencies:
+    "@fastify/static": ^6.0.0
+    fastify-plugin: ^4.0.0
+    openapi-types: ^12.0.2
+    rfdc: ^1.3.0
+    yaml: ^2.1.3
+  checksum: 7b8c95a25170fd9983a79737c21147bd2af532293edf5ec22a6cb7c363598ace41deb962b5f3c64adb0622523ab16bb69ef6afe0b38234122b0f068c3103baf9
   languageName: node
   linkType: hard
 
@@ -404,17 +407,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@yarnpkg/core@npm:^4.0.0-rc.42":
-  version: 4.0.0-rc.42
-  resolution: "@yarnpkg/core@npm:4.0.0-rc.42"
+"@yarnpkg/core@npm:^4.0.0-rc.43":
+  version: 4.0.0-rc.43
+  resolution: "@yarnpkg/core@npm:4.0.0-rc.43"
   dependencies:
     "@arcanis/slice-ansi": ^1.1.1
     "@types/semver": ^7.1.0
     "@types/treeify": ^1.0.0
-    "@yarnpkg/fslib": ^3.0.0-rc.42
-    "@yarnpkg/libzip": ^3.0.0-rc.42
-    "@yarnpkg/parsers": ^3.0.0-rc.42
-    "@yarnpkg/shell": ^4.0.0-rc.42
+    "@yarnpkg/fslib": ^3.0.0-rc.43
+    "@yarnpkg/libzip": ^3.0.0-rc.43
+    "@yarnpkg/parsers": ^3.0.0-rc.43
+    "@yarnpkg/shell": ^4.0.0-rc.43
     camelcase: ^5.3.1
     chalk: ^3.0.0
     ci-info: ^3.2.0
@@ -433,84 +436,84 @@ __metadata:
     treeify: ^1.1.0
     tslib: ^2.4.0
     tunnel: ^0.0.6
-  checksum: c7d4513453c996cbb5acf63044daa8547a21cec6f38b2c92683b3f7ea5bb50857bb0c9228d3a541dafe2551b771d15bb8bfb01636a27f11eacfe822c6f580024
+  checksum: a81509246c4f3915746f0932643ff55a5bccbe7d9505872a32e324d328d0c73e66078216017329065161c199fac56500c8b519b6ceb45d63b1e133e44ca577e8
   languageName: node
   linkType: hard
 
-"@yarnpkg/fslib@npm:^3.0.0-rc.42":
-  version: 3.0.0-rc.42
-  resolution: "@yarnpkg/fslib@npm:3.0.0-rc.42"
+"@yarnpkg/fslib@npm:^3.0.0-rc.43":
+  version: 3.0.0-rc.43
+  resolution: "@yarnpkg/fslib@npm:3.0.0-rc.43"
   dependencies:
     tslib: ^2.4.0
-  checksum: 55f18e55a6a39f29584920e37fbf9cc1955093411f7e0e6e550c5771164f31a4b974c1d174fff8ac7b38675c149c3f9f9663ae666400f638d16d88b0fd0d052a
+  checksum: dfe020205d32d92f60b12a614051d89e9c3ab4f00002f3888595a9388a9e03b90449628596c3475302ee87f0bcb546ffec3df5edcc499fa115d11a93ed902195
   languageName: node
   linkType: hard
 
-"@yarnpkg/libzip@npm:^3.0.0-rc.42":
-  version: 3.0.0-rc.42
-  resolution: "@yarnpkg/libzip@npm:3.0.0-rc.42"
+"@yarnpkg/libzip@npm:^3.0.0-rc.43":
+  version: 3.0.0-rc.43
+  resolution: "@yarnpkg/libzip@npm:3.0.0-rc.43"
   dependencies:
     "@types/emscripten": ^1.39.6
-    "@yarnpkg/fslib": ^3.0.0-rc.42
+    "@yarnpkg/fslib": ^3.0.0-rc.43
     tslib: ^2.4.0
   peerDependencies:
-    "@yarnpkg/fslib": ^3.0.0-rc.42
-  checksum: fd26e3d0969edcf51818c2d85c80101c3167c639339432646d037767d7e1236aa7e4af670a1694d70114e2823b7ec4ea46f64a1da700c2e65b49c2b922426385
+    "@yarnpkg/fslib": ^3.0.0-rc.43
+  checksum: be4b816855b508710ea7d999900e9453df0cf7181f391ad08b2b71a5e70f180b347d7fecf4d1a5f843fc527796551ba76fdd5821048646088f1ad0cdc578645b
   languageName: node
   linkType: hard
 
-"@yarnpkg/nm@npm:^4.0.0-rc.42":
-  version: 4.0.0-rc.42
-  resolution: "@yarnpkg/nm@npm:4.0.0-rc.42"
+"@yarnpkg/nm@npm:^4.0.0-rc.43":
+  version: 4.0.0-rc.43
+  resolution: "@yarnpkg/nm@npm:4.0.0-rc.43"
   dependencies:
-    "@yarnpkg/core": ^4.0.0-rc.42
-    "@yarnpkg/fslib": ^3.0.0-rc.42
-    "@yarnpkg/pnp": ^4.0.0-rc.42
-  checksum: d760c38191106ca591ef4a2c984f3fe4969346ef5d4b6bbb7caa83cef3ba342872daf55cadef5aee1d52592a2593b7b2625946325b33892f9c500af806997b18
+    "@yarnpkg/core": ^4.0.0-rc.43
+    "@yarnpkg/fslib": ^3.0.0-rc.43
+    "@yarnpkg/pnp": ^4.0.0-rc.43
+  checksum: 6a63d9ba101dd0a9613fa28ce687cfd38cc8f099a406db6793d2d9dd58a0184c209da050ac7cd6adf9326254c0d0a4befdc1725b3f9b93f85bc5b3678d32542b
   languageName: node
   linkType: hard
 
-"@yarnpkg/parsers@npm:^3.0.0-rc.42":
-  version: 3.0.0-rc.42
-  resolution: "@yarnpkg/parsers@npm:3.0.0-rc.42"
+"@yarnpkg/parsers@npm:^3.0.0-rc.43":
+  version: 3.0.0-rc.43
+  resolution: "@yarnpkg/parsers@npm:3.0.0-rc.43"
   dependencies:
     js-yaml: ^3.10.0
     tslib: ^2.4.0
-  checksum: 147216f53d683ac2b0b4a68e6cda77b7194d70db5ad3b0b6863129b6f1e36054de5cd5c707707fc36921e110d3ac1cb6a0f51fc9e8d74a4a4123ec3b93d3951e
+  checksum: 8dee7e9cdaa909d7dc37e8721047d7aa1675aa2e63c64cb411a4b64a13e01c30b5734b1331f8ae33f67787ba49365b6155a144d9e1e2be2ebf62bf239ba25aae
   languageName: node
   linkType: hard
 
-"@yarnpkg/pnp@npm:^4.0.0-rc.42":
-  version: 4.0.0-rc.42
-  resolution: "@yarnpkg/pnp@npm:4.0.0-rc.42"
+"@yarnpkg/pnp@npm:^4.0.0-rc.43":
+  version: 4.0.0-rc.43
+  resolution: "@yarnpkg/pnp@npm:4.0.0-rc.43"
   dependencies:
     "@types/node": ^18.11.11
-    "@yarnpkg/fslib": ^3.0.0-rc.42
-  checksum: bba47fc698cb385e4b86948c2dba9cd1541b163d747ae063fba02dbf735807ebe8c3fe8ed398ccadc76dd00df0752e2ccd15eda23d9f5f3704a18e4348ad26a3
+    "@yarnpkg/fslib": ^3.0.0-rc.43
+  checksum: dd13e8f9a08054cf55838d7f8bc576eb51a738a0d2e21854324c506fbbd0483b4f921a470647229d17e7d74abd2dac6c90f72415659c5fb0625eaf5ad3188570
   languageName: node
   linkType: hard
 
-"@yarnpkg/pnpify@npm:^4.0.0-rc.42":
-  version: 4.0.0-rc.42
-  resolution: "@yarnpkg/pnpify@npm:4.0.0-rc.42"
+"@yarnpkg/pnpify@npm:^4.0.0-rc.43":
+  version: 4.0.0-rc.43
+  resolution: "@yarnpkg/pnpify@npm:4.0.0-rc.43"
   dependencies:
-    "@yarnpkg/core": ^4.0.0-rc.42
-    "@yarnpkg/fslib": ^3.0.0-rc.42
-    "@yarnpkg/nm": ^4.0.0-rc.42
+    "@yarnpkg/core": ^4.0.0-rc.43
+    "@yarnpkg/fslib": ^3.0.0-rc.43
+    "@yarnpkg/nm": ^4.0.0-rc.43
     clipanion: ^3.2.0-rc.10
     tslib: ^2.4.0
   bin:
     pnpify: ./lib/cli.js
-  checksum: 17d6e30e1688a4b6abd59c102114ae0f48addec44a189cb50307bc0a8d243f3050a22e77f905736ccc8e62c4823496a7c4ca65faeaa902b3321f073c96f90ab1
+  checksum: bc738dcf1a79fe5708f2e1bad61e604b21126852bc9d2746bae6c820db6c45acf972a6dcc2d30e5d9a9331fb3d20434b2263fe0705e4a210fab8ea45e7131dcc
   languageName: node
   linkType: hard
 
-"@yarnpkg/shell@npm:^4.0.0-rc.42":
-  version: 4.0.0-rc.42
-  resolution: "@yarnpkg/shell@npm:4.0.0-rc.42"
+"@yarnpkg/shell@npm:^4.0.0-rc.43":
+  version: 4.0.0-rc.43
+  resolution: "@yarnpkg/shell@npm:4.0.0-rc.43"
   dependencies:
-    "@yarnpkg/fslib": ^3.0.0-rc.42
-    "@yarnpkg/parsers": ^3.0.0-rc.42
+    "@yarnpkg/fslib": ^3.0.0-rc.43
+    "@yarnpkg/parsers": ^3.0.0-rc.43
     chalk: ^3.0.0
     clipanion: ^3.2.0-rc.10
     cross-spawn: 7.0.3
@@ -519,7 +522,7 @@ __metadata:
     tslib: ^2.4.0
   bin:
     shell: ./lib/cli.js
-  checksum: f66db59b4e3f663477c44710447b70a49fd8c9483460f4c1e2971ecd9adc4b2adf075ce05b4cad483e06e35192ddf3cac4fff6765fed172772b8f9facbd4982d
+  checksum: a3a6468c866d6b971263e065035519d53822d310fcb8d82864e306efee151b3dc3a0423832f3fa52969c20b2f74904f5db813b10c939089588d5e77c9b112377
   languageName: node
   linkType: hard
 
@@ -708,17 +711,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"authey@npm:^0.4.2":
-  version: 0.4.2
-  resolution: "authey@npm:0.4.2"
+"authey@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "authey@npm:0.5.0"
   dependencies:
     "@polka/send-type": ^0.5.2
-    node-fetch-native: ^1.0.2
+    node-fetch-native: ^1.1.0
     requrl: ^3.0.2
     set-cookie-parser: ^2.6.0
   peerDependencies:
-    "@auth/core": ^0.5.0
-  checksum: 8f8f3033d4958cfe0faf48751f5eba4f2f74411c57e31b0334ae2c9f8ad78419ca7275ce29026192cb4b3f7f0cff6e13bdb6c069c5d3e86f6a4e3f9cb5ad1cae
+    "@auth/core": ^0.7.0
+  checksum: b599ae29f14dd98a808b0bd52a6d5d1b72f7e7803941137df4380c4312775db18c23ed5f45711f83db5370c1f2dbb5dbce47c1f90441fc36f986dd0c7527f358
   languageName: node
   linkType: hard
 
@@ -1660,20 +1663,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fastify-next-auth@npm:^0.3.0":
-  version: 0.3.0
-  resolution: "fastify-next-auth@npm:0.3.0"
-  dependencies:
-    "@fastify/middie": ^8.1.0
-    authey: ^0.4.2
-    fastify-plugin: ^4.5.0
-  peerDependencies:
-    "@auth/core": ^0.5.0
-  checksum: 084810a4bc66db361306485e2216f31778ed0d68bd192b7e0cd3b910f2fda279a2fa04edda582784743f2915594f647128cc7da8f558665cb87f5185d40c7470
-  languageName: node
-  linkType: hard
-
-"fastify-plugin@npm:^4.0.0, fastify-plugin@npm:^4.2.1, fastify-plugin@npm:^4.5.0":
+"fastify-plugin@npm:^4.0.0, fastify-plugin@npm:^4.5.0":
   version: 4.5.0
   resolution: "fastify-plugin@npm:4.5.0"
   checksum: 3cc36a43ec72ee9974d3cd1989027e77b277b0994e4fc02ed4e6492aabd83a0be66f14fdec56e60d9a41911ea1ff1ea70c9d957a87e46bcdb8fedd859f4988fe
@@ -1699,9 +1689,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fastify@npm:^4.16.3":
-  version: 4.16.3
-  resolution: "fastify@npm:4.16.3"
+"fastify@npm:^4.17.0":
+  version: 4.17.0
+  resolution: "fastify@npm:4.17.0"
   dependencies:
     "@fastify/ajv-compiler": ^3.5.0
     "@fastify/error": ^3.0.0
@@ -1719,7 +1709,7 @@ __metadata:
     secure-json-parse: ^2.5.0
     semver: ^7.3.7
     tiny-lru: ^11.0.1
-  checksum: a515ad41cab91b93966ed9051fa6278ec6aacd1255d8f769181c87bf367f3fa97755bb04d16152564f109a0dfb7ea18600e54e114d3ec69cb3297f774c9aa313
+  checksum: 919018b384485452ad2100b172080a266327bdb89c68dbebb8443cc2352efe96fb3d1225d2924b1ca8f06175d5478fee5c18c8857fe6981b8c39328182ff48a1
   languageName: node
   linkType: hard
 
@@ -2101,7 +2091,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"helmet@npm:^6.0.0":
+"helmet@npm:^6.1.5":
   version: 6.1.5
   resolution: "helmet@npm:6.1.5"
   checksum: 58cc8f8715e2c486f3c7a58f89fcda3c9e83ab427bfe16d8486d8be53a681afc291f9900b9e60e5d42c63c25ece3da864a33cdd621a12f5a67cbc9046cff393d
@@ -2792,7 +2782,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch-native@npm:^1.0.2":
+"node-fetch-native@npm:^1.1.0":
   version: 1.1.0
   resolution: "node-fetch-native@npm:1.1.0"
   checksum: 65b85ba8d671f7d4b8a4c8eb70dfd3864b4d04ab771e15aeadc613011cd4e4568c4a0a3f1aebdd37410cd2d75c65ab3e538eedb1732fc6b33ee093167e22bbe0
@@ -3174,19 +3164,20 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "ppsl-cd-api@workspace:."
   dependencies:
-    "@auth/core": ^0.7.0
-    "@fastify/helmet": ^10.1.0
+    "@auth/core": ^0.7.1
+    "@fastify/middie": ^8.2.0
     "@fastify/swagger": ^8.3.1
-    "@fastify/swagger-ui": ^1.8.0
+    "@fastify/swagger-ui": ^1.8.1
     "@next-auth/prisma-adapter": ^1.0.6
     "@prisma/client": ^4.13.0
-    "@yarnpkg/pnpify": ^4.0.0-rc.42
+    "@yarnpkg/pnpify": ^4.0.0-rc.43
+    authey: ^0.5.0
     dotenv: ^16.0.3
     dotenv-expand: ^10.0.0
-    fastify: ^4.16.3
-    fastify-next-auth: ^0.3.0
+    fastify: ^4.17.0
     fastify-plugin: ^4.5.0
     fastify-zod: ^1.3.2
+    helmet: ^6.1.5
     pino-pretty: ^10.0.0
     prisma: ^4.13.0
     rimraf: ^5.0.0
