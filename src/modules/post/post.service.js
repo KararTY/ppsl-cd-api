@@ -1,7 +1,19 @@
+const activePostHistorySelect = {
+  postHistory: {
+    where: {
+      endTimestamp: {
+        equals: null
+      }
+    },
+    take: 1
+  }
+}
+
 /**
  * @param {PrismaClient} prisma
+ * @param {import('../../../.prisma/client').Prisma.PostWhereInput} filter
  */
-export async function allPostsPaginated (prisma, cursor) {
+export async function allPostsPaginated (prisma, cursor, filter) {
   return await prisma.post.findMany({
     take: 50,
     skip: cursor ? 1 : undefined,
@@ -10,33 +22,29 @@ export async function allPostsPaginated (prisma, cursor) {
           id: cursor
         }
       : undefined,
-    orderBy: {
-      timestamp: 'desc'
-    }
+    where: filter
   })
 }
 
 /**
  * @param {PrismaClient} prisma
  */
-export async function postById (prisma, id) {
+export async function postWithContentById (prisma, id) {
   return await prisma.post.findFirst({
     where: {
       id
-    }
+    },
+    include: activePostHistorySelect
   })
 }
 
 /**
  * @param {PrismaClient} prisma
  */
-export async function postByPostId (prisma, postId) {
-  return await prisma.post.findFirst({
-    where: {
-      postId
-    },
-    orderBy: {
-      timestamp: 'desc'
-    }
-  })
-}
+// export async function postRelationsByFromPostId (prisma, id) {
+//   return await prisma.postRelation.findMany({
+//     where: {
+//       fromPostId: id
+//     }
+//   })
+// }

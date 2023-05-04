@@ -1,12 +1,42 @@
-import { allPostsPaginated, postById, postByPostId } from './post.service'
+import { allPostsPaginated, postWithContentById } from './post.service'
 
 /**
  * @param {Fastify.Request} request
  * @param {Fastify.Reply} reply
  */
-export async function getPosts (request, reply) {
+export async function getAllPosts (request, reply) {
   const { cursor } = request.query
-  const res = await allPostsPaginated(request.server.prisma, cursor)
+  const filter = request.body
+  const res = await allPostsPaginated(request.server.prisma, cursor, filter)
+
+  if (res.length === 0) {
+    return {
+      result: [],
+      cursor
+    }
+  }
+
+  return {
+    result: res,
+    cursor: res[res.length - 1].id
+  }
+}
+
+/**
+ * @param {Fastify.Request} request
+ * @param {Fastify.Reply} reply
+ */
+export async function getAllSystemPosts (request, reply) {
+  const { cursor } = request.query
+  const res = await allPostsPaginated(request.server.prisma, cursor, {
+    outRelations: {
+      some: {
+        toPostId: {
+          equals: 'system'
+        }
+      }
+    }
+  })
 
   if (res.length === 0) {
     return {
@@ -27,31 +57,31 @@ export async function getPosts (request, reply) {
  */
 export async function getPostById (request, reply) {
   const { id } = request.params
-  const res = await postById(request.server.prisma, id)
+  const res = await postWithContentById(request.server.prisma, id)
 
   if (!res) return reply.callNotFound()
 
   return res
 }
 
-/**
- * @param {Fastify.Request} request
- * @param {Fastify.Reply} reply
- */
-export async function getPostByPostId (request, reply) {
-  const { postId } = request.params
+// /**
+//  * @param {Fastify.Request} request
+//  * @param {Fastify.Reply} reply
+//  */
+// export async function getPostHistory (request, reply) {
+//   const { postId } = request.params
+//
+//   const res = await (request.server.prisma, postId)
+//
+//   if (!res) return reply.callNotFound()
+//
+//   return res
+// }
 
-  const res = await postByPostId(request.server.prisma, postId)
-
-  if (!res) return reply.callNotFound()
-
-  return res
-}
-
-/**
- * @param {Fastify.Request} request
- * @param {Fastify.Reply} reply
- */
+// /**
+//  * @param {Fastify.Request} request
+//  * @param {Fastify.Reply} reply
+//  */
 // export async function postPost (request, reply) {
 //   const { postId } = request.params
 //
