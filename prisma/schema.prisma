@@ -68,16 +68,11 @@ model VerificationToken {
 // Data
 
 model Post {
-  id String @default(cuid()) @unique
-
-  title    String
-  language String @default("en")
+  id String @default(cuid()) @id
 
   postHistory  PostHistory[]
   inRelations  PostRelation[] @relation("toPost") /// Used for relations to (Manual - By script).
   outRelations PostRelation[] @relation("fromPost") /// Used for relations from (Has been applied to).
-
-  @@id([id, language])
 }
 
 model PostRelation {
@@ -95,6 +90,7 @@ model PostHistory {
   id String @unique @default(cuid())
 
   title String
+  language String @default("en")
   content String @db.Text
 
   endTimestamp   DateTime?
@@ -103,11 +99,10 @@ model PostHistory {
   metadata       PostMetadata @relation(fields: [postMetadataId], references: [id])
   postMetadataId String       @unique
 
-  post         Post   @relation(fields: [postId, postLanguage], references: [id, language])
+  post         Post   @relation(fields: [postId], references: [id])
   postId       String
-  postLanguage String
 
-  @@unique([postId, endTimestamp])
+  @@unique([postId, language, endTimestamp])
 }
 
 model PostMetadata {

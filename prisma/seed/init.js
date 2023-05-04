@@ -19,7 +19,6 @@ async function main () {
     where: { id: 'system' },
     update: {},
     create: {
-      title: 'System',
       id: 'system',
       postHistory: {
         create: {
@@ -43,7 +42,6 @@ async function main () {
     where: { id: 'bio' },
     update: {},
     create: {
-      title: 'Bio',
       id: 'bio',
       outRelations: {
         create: {
@@ -88,7 +86,6 @@ async function main () {
     update: {},
     create: {
       id: 'test-post',
-      title: 'Test bio [EXAMPLE]',
       postHistory: {
         create: {
           title: 'Test bio [EXAMPLE]',
