@@ -53,7 +53,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  posts PostMetadata[]
+  postsMetadata PostMetadata[]
 }
 
 // Auth.js
@@ -68,41 +68,53 @@ model VerificationToken {
 // Data
 
 model Post {
-  id String @default(cuid())
+  id String @default(cuid()) @unique
 
-  postId    String
-  language  String
-  timestamp DateTime @default(now())
+  title    String
+  language String @default("en")
 
-  title   String
-  content String @db.Text
+  postHistory  PostHistory[]
+  inRelations  PostRelation[] @relation("toPost") /// Used for relations to (Manual - By script).
+  outRelations PostRelation[] @relation("fromPost") /// Used for relations from (Has been applied to).
 
-  metadata PostMetadata?
-
-  @@id([postId, language, timestamp])
+  @@id([id, language])
 }
 
 model PostRelation {
-  id String @default(cuid())
-
   isSystem Boolean
 
+  fromPost   Post   @relation("fromPost", fields: [fromPostId], references: [id])
   fromPostId String
+  toPost     Post   @relation("toPost", fields: [toPostId], references: [id])
   toPostId   String
 
   @@id([fromPostId, toPostId])
 }
 
+model PostHistory {
+  id String @unique @default(cuid())
+
+  title String
+  content String @db.Text
+
+  endTimestamp   DateTime?
+  createdTimestamp DateTime  @default(now())
+
+  metadata       PostMetadata @relation(fields: [postMetadataId], references: [id])
+  postMetadataId String       @unique
+
+  post         Post   @relation(fields: [postId, postLanguage], references: [id, language])
+  postId       String
+  postLanguage String
+
+  @@unique([postId, endTimestamp])
+}
+
 model PostMetadata {
   id String @id @default(cuid())
-
-  post          Post     @relation(fields: [postId, postLanguage, postTimestamp], references: [postId, language, timestamp])
-  postId        String
-  postLanguage  String
-  postTimestamp DateTime
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
 
-  @@unique([postId, postLanguage, postTimestamp])
+  postHistory PostHistory?
 }

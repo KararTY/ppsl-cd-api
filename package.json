@@ -11,6 +11,7 @@
     "prisma:db-push": "yarn pnpify prisma db push",
     "prisma:migrate-reset": "yarn pnpify prisma migrate reset",
     "prisma:migrate-dev": "yarn pnpify prisma migrate dev",
+    "prisma:seed": "yarn node ./prisma/seed/init.js",
     "lint": "standard",
     "lintfix": "standard --fix"
   },

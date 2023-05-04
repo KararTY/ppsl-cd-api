@@ -48,18 +48,14 @@ CREATE TABLE "VerificationToken" (
 -- CreateTable
 CREATE TABLE "Post" (
     "id" TEXT NOT NULL,
-    "postId" TEXT NOT NULL,
-    "language" TEXT NOT NULL,
-    "timestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "title" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
+    "language" TEXT NOT NULL DEFAULT 'en',
 
-    CONSTRAINT "Post_pkey" PRIMARY KEY ("postId","language","timestamp")
+    CONSTRAINT "Post_pkey" PRIMARY KEY ("id","language")
 );
 
 -- CreateTable
 CREATE TABLE "PostRelation" (
-    "id" TEXT NOT NULL,
     "isSystem" BOOLEAN NOT NULL,
     "fromPostId" TEXT NOT NULL,
     "toPostId" TEXT NOT NULL,
@@ -68,11 +64,20 @@ CREATE TABLE "PostRelation" (
 );
 
 -- CreateTable
+CREATE TABLE "PostHistory" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "endTimestamp" TIMESTAMP(3),
+    "createdTimestamp" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "postMetadataId" TEXT NOT NULL,
+    "postId" TEXT NOT NULL,
+    "postLanguage" TEXT NOT NULL
+);
+
+-- CreateTable
 CREATE TABLE "PostMetadata" (
     "id" TEXT NOT NULL,
-    "postId" TEXT NOT NULL,
-    "postLanguage" TEXT NOT NULL,
-    "postTimestamp" TIMESTAMP(3) NOT NULL,
     "userId" TEXT NOT NULL,
 
     CONSTRAINT "PostMetadata_pkey" PRIMARY KEY ("id")
@@ -94,7 +99,16 @@ CREATE UNIQUE INDEX "VerificationToken_token_key" ON "VerificationToken"("token"
 CREATE UNIQUE INDEX "VerificationToken_identifier_token_key" ON "VerificationToken"("identifier", "token");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "PostMetadata_postId_postLanguage_postTimestamp_key" ON "PostMetadata"("postId", "postLanguage", "postTimestamp");
+CREATE UNIQUE INDEX "Post_id_key" ON "Post"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PostHistory_id_key" ON "PostHistory"("id");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PostHistory_postMetadataId_key" ON "PostHistory"("postMetadataId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PostHistory_postId_endTimestamp_key" ON "PostHistory"("postId", "endTimestamp");
 
 -- AddForeignKey
 ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -103,7 +117,16 @@ ALTER TABLE "Account" ADD CONSTRAINT "Account_userId_fkey" FOREIGN KEY ("userId"
 ALTER TABLE "Session" ADD CONSTRAINT "Session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "PostMetadata" ADD CONSTRAINT "PostMetadata_postId_postLanguage_postTimestamp_fkey" FOREIGN KEY ("postId", "postLanguage", "postTimestamp") REFERENCES "Post"("postId", "language", "timestamp") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "PostRelation" ADD CONSTRAINT "PostRelation_fromPostId_fkey" FOREIGN KEY ("fromPostId") REFERENCES "Post"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PostRelation" ADD CONSTRAINT "PostRelation_toPostId_fkey" FOREIGN KEY ("toPostId") REFERENCES "Post"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PostHistory" ADD CONSTRAINT "PostHistory_postMetadataId_fkey" FOREIGN KEY ("postMetadataId") REFERENCES "PostMetadata"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PostHistory" ADD CONSTRAINT "PostHistory_postId_postLanguage_fkey" FOREIGN KEY ("postId", "postLanguage") REFERENCES "Post"("id", "language") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PostMetadata" ADD CONSTRAINT "PostMetadata_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

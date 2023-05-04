@@ -77,7 +77,6 @@ async function setup () {
     await fastify.listen({ port: process.env.PORT, host: process.env.HOST || '0.0.0.0' })
   } catch (error) {
     await fastify.close()
-    await fastify.prisma.$disconnect()
 
     fastify.log.fatal(error)
     process.exit(1)
