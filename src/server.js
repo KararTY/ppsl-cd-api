@@ -57,7 +57,7 @@ async function setup () {
   fastify.register(fastifySwagger, withRefResolver({
     openapi: {
       info: 'PPSL CD API',
-      description: 'PPSL CD is a reviews database for companies in relation to the right-to-repair legislation',
+      description: 'PPSL CD is a company reviews database, for consumers, in relation to the right-to-repair legislation.',
       version: packageJSON.version
     }
   }))
