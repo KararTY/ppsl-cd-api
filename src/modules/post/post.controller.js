@@ -1,4 +1,6 @@
-import { allPostsPaginated, postWithContentById } from './post.service'
+import { postResponseSchemaWithPostHistoryContent } from './post.schema.js'
+import { allPostsPaginated, postWithContentById } from './post.service.js'
+import { allPostHistoriesPaginated } from './postHistory.service.js'
 
 /**
  * @param {Fastify.Request} request
@@ -31,9 +33,7 @@ export async function getAllSystemPosts (request, reply) {
   const res = await allPostsPaginated(request.server.prisma, cursor, {
     outRelations: {
       some: {
-        toPostId: {
-          equals: 'system'
-        }
+        toPostId: 'system'
       }
     }
   })
@@ -61,22 +61,34 @@ export async function getPostById (request, reply) {
 
   if (!res) return reply.callNotFound()
 
-  return res
+  // Custom transform for content using "@msgpack/msgpack".
+  return postResponseSchemaWithPostHistoryContent.parse(res)
 }
 
-// /**
-//  * @param {Fastify.Request} request
-//  * @param {Fastify.Reply} reply
-//  */
-// export async function getPostHistory (request, reply) {
-//   const { postId } = request.params
-//
-//   const res = await (request.server.prisma, postId)
-//
-//   if (!res) return reply.callNotFound()
-//
-//   return res
-// }
+/**
+ * @param {Fastify.Request} request
+ * @param {Fastify.Reply} reply
+ */
+export async function getPostHistoriesByPostId (request, reply) {
+  const { cursor } = request.query
+  const { id } = request.params
+
+  const res = await allPostHistoriesPaginated(request.server.prisma, cursor, {
+    postId: id
+  })
+
+  if (res.length === 0) {
+    return {
+      result: [],
+      cursor
+    }
+  }
+
+  return {
+    result: res,
+    cursor: res[res.length - 1].id
+  }
+}
 
 // /**
 //  * @param {Fastify.Request} request

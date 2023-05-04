@@ -1,4 +1,4 @@
-const activePostHistorySelect = {
+export const activePostHistoryInclude = {
   postHistory: {
     where: {
       endTimestamp: {
@@ -12,6 +12,7 @@ const activePostHistorySelect = {
 /**
  * @param {PrismaClient} prisma
  * @param {import('../../../.prisma/client').Prisma.PostWhereInput} filter
+ * @param {import('../../../.prisma/client').Prisma.PostInclude} include
  */
 export async function allPostsPaginated (prisma, cursor, filter) {
   return await prisma.post.findMany({
@@ -22,7 +23,8 @@ export async function allPostsPaginated (prisma, cursor, filter) {
           id: cursor
         }
       : undefined,
-    where: filter
+    where: filter,
+    include: activePostHistoryInclude
   })
 }
 
@@ -34,7 +36,7 @@ export async function postWithContentById (prisma, id) {
     where: {
       id
     },
-    include: activePostHistorySelect
+    include: activePostHistoryInclude
   })
 }
 
