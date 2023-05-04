@@ -8,5 +8,6 @@
   "standard.enable": true,
   "standard.autoFixOnSave": true,
   "standard.validate": ["javascript"],
-  "javascript.validate.enable": false
+  "javascript.validate.enable": false,
+  "eslint.enable": false
 }
