@@ -5,7 +5,6 @@ import { readFileSync } from 'fs'
 import { fileURLToPath } from 'url'
 
 import Fastify from 'fastify'
-import helmet from '@fastify/helmet'
 import { withRefResolver } from 'fastify-zod'
 import fastifySwagger from '@fastify/swagger'
 import fastifySwaggerUi from '@fastify/swagger-ui'
@@ -33,22 +32,27 @@ const envToLogger = {
  */
 const packageJSON = JSON.parse(readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), { encoding: 'utf-8' }))
 
-const fastify = Fastify({
-  logger: envToLogger[process.env.NODE_ENV] ?? true
-})
+const helmetOpts = {
+  global: true,
+  contentSecurityPolicy: {
+    directives: {
+      'form-action': ["'self'", 'github.com/login', 'accounts.google.com']
+    }
+  }
+}
 
 async function setup () {
-  fastify.register(helmet, {
-    contentSecurityPolicy: {
-      directives: {
-        'form-action': ["'self'", 'github.com/login', 'accounts.google.com']
-      }
-    }
+  const fastify = Fastify({
+    logger: envToLogger[process.env.NODE_ENV] ?? true
   })
 
   for (const schema of [...userSchemas, ...postSchemas]) {
     await fastify.addSchema(schema)
   }
+
+  await fastify.register(prismaPlugin)
+
+  fastify.register(authPlugin, { helmetOpts })
 
   fastify.register(fastifySwagger, withRefResolver({
     openapi: {
@@ -65,10 +69,6 @@ async function setup () {
   fastify.get('/healthcheck', async () => {
     return 'OK'
   })
-
-  fastify.register(prismaPlugin)
-
-  fastify.register(authPlugin)
 
   fastify.register(userRoutes, { prefix: 'api/users' })
   fastify.register(postRoutes, { prefix: 'api/posts' })

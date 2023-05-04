@@ -1,5 +1,7 @@
 import fp from 'fastify-plugin'
-import { fastifyNextAuth } from 'fastify-next-auth'
+import Middie from '@fastify/middie/engine.js'
+import helmet from 'helmet'
+import { createAuthMiddleware, getSession } from 'authey'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 
 import { Google } from './providers/google.js'
@@ -24,8 +26,10 @@ export async function authenticate (request, reply, next) {
 /**
  * @type {import('fastify').FastifyPluginAsync}
  */
-const authPlugin = fp(async (fastify, _) => {
-  await fastify.register(fastifyNextAuth, {
+const authPlugin = fp(async (fastify, opts) => {
+  const { helmetOpts } = opts
+
+  const options = {
     secret: process.env.AUTH_SECRET,
     trustHost: true,
     providers: [Google, GitHub],
@@ -39,9 +43,36 @@ const authPlugin = fp(async (fastify, _) => {
         return session
       }
     }
+  }
+
+  const middleware = createAuthMiddleware(options)
+  const middie = Middie((err, _, __, next) => {
+    next(err)
   })
 
-  await fastify.decorate('authenticate', authenticate)
+  middie.use(helmet(helmetOpts))
+  middie.use(middleware)
+
+  function runMiddie (req, reply, next2) {
+    req.raw.originalUrl = req.raw.url
+    req.raw.id = req.id
+    req.raw.hostname = req.hostname
+    req.raw.ip = req.ip
+    req.raw.ips = req.ips
+    req.raw.log = req.log
+    req.raw.body = req.body
+    req.raw.query = req.query
+    // reply.raw.log = req.log;
+    middie.run(req.raw, reply.raw, next2)
+  }
+
+  fastify.addHook('onRequest', runMiddie)
+
+  fastify.decorate('getSession', function (req) {
+    return getSession(req.raw, options)
+  })
+
+  fastify.decorate('authenticate', authenticate)
 })
 
 export default authPlugin

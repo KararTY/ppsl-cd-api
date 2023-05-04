@@ -10,7 +10,7 @@ Based\* on [@TomDoesTech](https://github.com/TomDoesTech)'s video titled [Build 
 * **`standard/standard`** - Code formatter & linter.
 * **Fastify** - Web server.
 * **Prisma** - TypeScript ORM.
-* **Auth.js through `fastify-next-auth` & `@next-auth/prisma-adapter`** - SSO authentication.
+* **Auth.js through `authey` & `@next-auth/prisma-adapter`** - SSO authentication.
 * **`zod` & `fastify-zod`** - Request & response validation.
 
 ## Setup
