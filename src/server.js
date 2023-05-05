@@ -12,10 +12,8 @@ import fastifySwaggerUi from '@fastify/swagger-ui'
 import prismaPlugin from './plugins/prisma/index.js'
 import authPlugin from './plugins/auth/index.js'
 
-import userRoutes from './modules/user/user.route.js'
-import { userSchemas } from './modules/user/user.schema.js'
-import postRoutes from './modules/post/post.route.js'
-import { postSchemas } from './modules/post/post.schema.js'
+import schemas from './schemas.js'
+import routes from './routes.js'
 
 const envToLogger = {
   development: {
@@ -32,8 +30,10 @@ const envToLogger = {
  */
 const packageJSON = JSON.parse(readFileSync(fileURLToPath(new URL('../package.json', import.meta.url)), { encoding: 'utf-8' }))
 
+/**
+ * @type {import('helmet').HelmetOptions}
+ */
 const helmetOpts = {
-  global: true,
   contentSecurityPolicy: {
     directives: {
       'form-action': ["'self'", 'github.com/login', 'accounts.google.com']
@@ -46,14 +46,16 @@ async function setup () {
     logger: envToLogger[process.env.NODE_ENV] ?? true
   })
 
-  for (const schema of [...userSchemas, ...postSchemas]) {
-    await fastify.addSchema(schema)
-  }
+  // Schemas first.
+  await fastify.register(schemas)
 
+  // For db access via fastify.prisma
   await fastify.register(prismaPlugin)
 
+  // Adds authentication routes through Auth.js
   fastify.register(authPlugin, { helmetOpts })
 
+  // Swagger
   fastify.register(fastifySwagger, withRefResolver({
     openapi: {
       info: 'PPSL CD API',
@@ -66,12 +68,8 @@ async function setup () {
     staticCSP: true
   })
 
-  fastify.get('/healthcheck', async () => {
-    return 'OK'
-  })
-
-  fastify.register(userRoutes, { prefix: 'api/users' })
-  fastify.register(postRoutes, { prefix: 'api/posts' })
+  // Routes
+  fastify.register(routes)
 
   try {
     await fastify.listen({ port: process.env.PORT, host: process.env.HOST || '0.0.0.0' })

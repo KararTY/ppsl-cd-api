@@ -1,15 +1,44 @@
 import { z } from 'zod'
 import { buildJsonSchemas } from 'fastify-zod'
 import { encode } from '@msgpack/msgpack'
-import { userCore } from '../user/user.schema'
 
 export const postCore = z.object({
   id: z.string()
 })
 
+export const postMetadataCore = z.object({
+  id: z.string(),
+
+  userId: z.string()
+})
+
+export const postHistoryCore = z.object({
+  id: z.string(),
+
+  title: z.string(),
+  language: z.string(),
+  content: z.string().transform((string) => encode(JSON.parse(string)).toString()).describe('Encoded with @msgpack/msgpack'),
+
+  endTimestamp: z.date().nullable(),
+  createdTimestamp: z.date(),
+
+  postMetadataId: z.string(),
+
+  post: postCore.optional(),
+  postId: postCore.shape.id
+})
+
+export const postHistoryWithPostMetadata = postHistoryCore.extend({
+  postMetadata: postMetadataCore
+})
+
+export const postMetadataWithPostHistory = postMetadataCore.extend({
+  postHistory: postHistoryCore
+})
+
 // Querystrings
 
-const cursor = z.string().optional()
+export const cursor = z.string().optional()
 
 export const postPaginationQueries = z.object({
   cursor: cursor.describe('Usually the last result array element\'s id.')
@@ -48,39 +77,28 @@ export const postsFilterRequestSchema = z.object({
 })
 
 // Responses
-export const postHistoryResponseSchema = z.object({
-  id: z.string(),
-  title: z.string(),
-  language: z.string(),
-  content: z.string().transform((string) => encode(JSON.parse(string)).toString()).describe('Encoded with @msgpack/msgpack'),
-  createdTimestamp: z.date(),
-  metadata: z.object({
-    user: z.object({
-      id: userCore.shape.id,
-      name: userCore.shape.name
-    })
-  }).optional()
-})
-
-export const postHistoriesPaginatedResponseSchema = z.object({
-  result: z.array(postHistoryResponseSchema.omit({ content: true })),
-  cursor
-})
 
 export const postResponseSchema = postCore.extend({
-  postHistory: z.array(z.object({
-    title: z.string(),
-    language: z.string(),
-    createdTimestamp: z.date()
-  }))
+  postHistory: z.array(z.lazy(() => postHistoryCore.pick({
+    title: true,
+    language: true,
+    createdTimestamp: true
+  })))
 })
 
-export const postResponseSchemaWithPostHistoryContent = postCore.extend({
-  postHistory: z.array(postHistoryResponseSchema)
+export const postResponseWithPostHistoryContentSchema = postCore.extend({
+  postHistory: z.array(z.lazy(() => postHistoryCore))
 })
 
 export const postsPaginatedResponseSchema = z.object({
   result: z.array(postResponseSchema),
+  cursor
+})
+
+export const postHistoryResponseSchema = postHistoryCore
+
+export const postHistoriesPaginatedResponseSchema = z.object({
+  result: z.array(postHistoryResponseSchema.omit({ content: true })),
   cursor
 })
 
@@ -90,10 +108,12 @@ export const { schemas: postSchemas, $ref } = buildJsonSchemas({
   postsFilterRequestSchema,
   postsPaginatedResponseSchema,
   postResponseSchema,
-  postResponseSchemaWithPostHistoryContent,
+  postResponseWithPostHistoryContentSchema,
+
   postParamsId,
-  postHistoryParamsId,
   postPaginationQueries,
+
+  postHistoryParamsId,
   postHistoriesPaginatedResponseSchema
 }, { $id: 'post' })
 

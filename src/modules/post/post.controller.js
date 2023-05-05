@@ -1,5 +1,6 @@
-import { postResponseSchemaWithPostHistoryContent } from './post.schema.js'
+import { postResponseWithPostHistoryContentSchema } from './post.schema.js'
 import { allPostsPaginated, postWithContentById } from './post.service.js'
+
 import { allPostHistoriesPaginated } from './postHistory.service.js'
 
 /**
@@ -62,7 +63,7 @@ export async function getPostById (request, reply) {
   if (!res) return reply.callNotFound()
 
   // Custom transform for content using "@msgpack/msgpack".
-  return postResponseSchemaWithPostHistoryContent.parse(res)
+  return postResponseWithPostHistoryContentSchema.parse(res)
 }
 
 /**

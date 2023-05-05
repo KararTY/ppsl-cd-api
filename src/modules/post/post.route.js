@@ -37,7 +37,7 @@ export default async function postRoutes (fastify) {
     schema: {
       params: $ref('postParamsId'),
       response: {
-        200: $ref('postResponseSchemaWithPostHistoryContent')
+        200: $ref('postResponseWithPostHistoryContentSchema')
       }
     }
   }, getPostById)
