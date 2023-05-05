@@ -29,6 +29,9 @@ export async function authenticate (request, reply, next) {
 const authPlugin = fp(async (fastify, opts) => {
   const { helmetOpts } = opts
 
+  /**
+   * @type {import('@auth/core').AuthConfig}
+   */
   const options = {
     secret: process.env.AUTH_SECRET,
     trustHost: true,
