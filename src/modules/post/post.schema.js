@@ -79,15 +79,15 @@ export const postsFilterRequestSchema = z.object({
 // Responses
 
 export const postResponseSchema = postCore.extend({
-  postHistory: z.array(z.lazy(() => postHistoryCore.pick({
+  postHistory: z.array(postHistoryCore.pick({
     title: true,
     language: true,
     createdTimestamp: true
-  })))
+  }))
 })
 
 export const postResponseWithPostHistoryContentSchema = postCore.extend({
-  postHistory: z.array(z.lazy(() => postHistoryCore))
+  postHistory: z.array(postHistoryCore)
 })
 
 export const postsPaginatedResponseSchema = z.object({
