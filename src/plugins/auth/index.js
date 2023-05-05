@@ -6,6 +6,7 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter'
 
 import { Google } from './providers/google.js'
 import { GitHub } from './providers/github.js'
+import { createDefaultBioPost } from '../../modules/user/user.service.js'
 
 /**
  * @param {Fastify.Request} request
@@ -44,6 +45,11 @@ const authPlugin = fp(async (fastify, opts) => {
         }
 
         return session
+      }
+    },
+    events: {
+      createUser: async ({ user }) => {
+        createDefaultBioPost(fastify.prisma, user)
       }
     }
   }
