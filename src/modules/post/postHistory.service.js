@@ -1,6 +1,6 @@
 export const authorThroughMetadataInclude = {
   include: {
-    metadata: {
+    postMetadata: {
       include: {
         user: {
           select: {
@@ -29,7 +29,7 @@ export async function allPostHistoriesPaginated (prisma, cursor, filter) {
       : undefined,
     where: filter,
     include: {
-      metadata: {
+      postMetadata: {
         select: {
           user: {
             select: {

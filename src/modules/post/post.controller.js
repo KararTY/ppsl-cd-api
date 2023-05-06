@@ -1,3 +1,4 @@
+import { SYSTEM_IDS } from '../../schemas.js'
 import { postResponseWithPostHistoryContentSchema } from './post.schema.js'
 import { allPostsPaginated, postWithContentById } from './post.service.js'
 
@@ -34,7 +35,7 @@ export async function getAllSystemPosts (request, reply) {
   const res = await allPostsPaginated(request.server.prisma, cursor, {
     outRelations: {
       some: {
-        toPostId: 'system'
+        toPostId: SYSTEM_IDS.SYSTEM
       }
     }
   })

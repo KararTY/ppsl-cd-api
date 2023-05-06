@@ -13,3 +13,11 @@ const schemas = fp(async (fastify) => {
 })
 
 export default schemas
+
+export const SYSTEM_IDS = {
+  SYSTEM: 'system',
+
+  BIO: 'bio',
+  ENTITY: 'entity',
+  REVIEW: 'review'
+}

@@ -1,4 +1,7 @@
 import { PrismaClient } from '../../.prisma/client/index.js'
+import { SYSTEM_IDS } from '../../src/schemas.js'
+
+const { BIO, SYSTEM } = SYSTEM_IDS
 
 const prisma = new PrismaClient()
 
@@ -11,20 +14,20 @@ async function main () {
     create: {
       email: 'system@ppsl.app',
       name: '%s [PPSL] System //\\\\',
-      id: 'system'
+      id: SYSTEM
     }
   })
 
   const sysPost = await prisma.post.upsert({
-    where: { id: 'system' },
+    where: { id: SYSTEM },
     update: {},
     create: {
-      id: 'system',
+      id: SYSTEM,
       postHistory: {
         create: {
           title: 'System',
           content: defaultContent,
-          metadata: {
+          postMetadata: {
             create: {
               user: {
                 connect: {
@@ -39,10 +42,10 @@ async function main () {
   })
 
   const sysBioPost = await prisma.post.upsert({
-    where: { id: 'bio' },
+    where: { id: BIO },
     update: {},
     create: {
-      id: 'bio',
+      id: BIO,
       outRelations: {
         create: {
           isSystem: true,
@@ -57,7 +60,7 @@ async function main () {
         create: {
           title: 'Bio',
           content: defaultContent,
-          metadata: {
+          postMetadata: {
             create: {
               user: {
                 connect: {
@@ -90,7 +93,7 @@ async function main () {
         create: {
           title: 'Test bio [EXAMPLE]',
           content: '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Bio b-b-b-bio.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}',
-          metadata: {
+          postMetadata: {
             create: {
               user: {
                 connect: {

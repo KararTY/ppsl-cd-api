@@ -17,7 +17,15 @@ export const postHistoryCore = z.object({
 
   title: z.string(),
   language: z.string(),
-  content: z.string().transform((string) => encode(JSON.parse(string)).toString()).describe('Encoded with @msgpack/msgpack'),
+
+  // Due to transform, this, and anything that uses it, must use this schema on the res object.
+  content: z.string().transform((string) => {
+    try {
+      return encode(JSON.parse(string)).toString()
+    } catch (error) {
+      return string
+    }
+  }).describe('Encoded with @msgpack/msgpack'),
 
   endTimestamp: z.date().nullable(),
   createdTimestamp: z.date(),
@@ -59,7 +67,7 @@ export const postHistoryParamsId = z.object({
 export const postsFilterRequestSchema = z.object({
   postHistory: z.object({
     every: z.object({
-      metadata: z.object({
+      postMetadata: z.object({
         userId: z.string()
       })
     })

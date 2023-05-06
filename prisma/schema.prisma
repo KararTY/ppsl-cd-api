@@ -96,7 +96,7 @@ model PostHistory {
   endTimestamp   DateTime?
   createdTimestamp DateTime  @default(now())
 
-  metadata       PostMetadata @relation(fields: [postMetadataId], references: [id])
+  postMetadata       PostMetadata @relation(fields: [postMetadataId], references: [id])
   postMetadataId String       @unique
 
   post         Post   @relation(fields: [postId], references: [id])
