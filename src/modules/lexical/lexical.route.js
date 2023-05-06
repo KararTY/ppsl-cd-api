@@ -8,7 +8,8 @@ export default async function userRoutes (fastify) {
   fastify.post('/bio/validate', {
     preHandler: [fastify.authenticate],
     schema: {
-      body: $ref('userProfileBioUpdateSchema')
+      body: $ref('userProfileBioUpdateSchema'),
+      description: 'Requires authorization cookie.'
     }
   }, validateBioEditor)
 }

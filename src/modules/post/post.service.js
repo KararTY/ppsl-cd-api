@@ -1,4 +1,4 @@
-import { ACTIVE_POSTHISTORY_WHERE } from '../../schemas'
+import { ACTIVE_POSTHISTORY_WHERE } from '../../schemas.js'
 
 export const activePostHistoryInclude = {
   postHistory: {

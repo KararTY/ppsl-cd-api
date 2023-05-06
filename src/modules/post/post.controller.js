@@ -1,8 +1,8 @@
 import errors from '../../errors.js'
 import { SYSTEM_IDS } from '../../schemas.js'
+
 import { postResponseWithPostHistoryContentSchema } from './post.schema.js'
 import { allPostsPaginated, postWithContentById } from './post.service.js'
-
 import { allPostHistoriesPaginated } from './postHistory.service.js'
 
 /**
@@ -64,7 +64,7 @@ export async function getPostById (request, reply) {
 
   if (!res) return reply.status(404).send(errors.FST_ERR_NOT_FOUND())
 
-  // Custom transform for content using "@msgpack/msgpack".
+  // Custom transform for content using `@msgpack/msgpack`.
   return postResponseWithPostHistoryContentSchema.parse(res)
 }
 

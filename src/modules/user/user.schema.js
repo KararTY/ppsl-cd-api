@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { buildJsonSchemas } from 'fastify-zod'
+
 import { postHistoryCore } from '../post/post.schema.js'
 
 // Core
