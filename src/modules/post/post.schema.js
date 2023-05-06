@@ -19,11 +19,11 @@ export const postHistoryCore = z.object({
   language: z.string(),
 
   // Due to transform, this, and anything that uses it, must use this schema on the res object.
-  content: z.string().transform((string) => {
+  content: z.string().transform((content) => {
     try {
-      return encode(JSON.parse(string)).toString()
+      return encode(JSON.parse(content)).toString()
     } catch (error) {
-      return string
+      return content
     }
   }).describe('Encoded with @msgpack/msgpack'),
 

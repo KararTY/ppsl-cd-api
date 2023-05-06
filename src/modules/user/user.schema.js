@@ -14,6 +14,10 @@ export const userCorePublic = userCore.omit({ id: true, email: true })
 
 // Requests
 
+export const userProfileBioUpdateSchema = z.object({
+  bio: z.string().describe('Encoded by @msgpack/msgpack')
+})
+
 // Responses
 
 export const userSessionResponseSchema = z.object({
@@ -24,6 +28,7 @@ export const userProfileResponseSchema = userCorePublic
 // Build
 
 export const { schemas: userSchemas, $ref } = buildJsonSchemas({
+  userProfileBioUpdateSchema,
   userSessionResponseSchema,
   userProfileResponseSchema
 }, { $id: 'user' })
