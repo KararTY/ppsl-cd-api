@@ -1,5 +1,5 @@
 import { PrismaClient } from '../../.prisma/client/index.js'
-import { SYSTEM_IDS } from '../../src/schemas.js'
+import { ACTIVE_POSTHISTORY_WHERE, SYSTEM_IDS } from '../../src/schemas.js'
 
 const { BIO, SYSTEM } = SYSTEM_IDS
 
@@ -27,6 +27,7 @@ async function main () {
         create: {
           title: 'System',
           content: defaultContent,
+          endTimestamp: ACTIVE_POSTHISTORY_WHERE.endTimestamp.equals,
           postMetadata: {
             create: {
               user: {
@@ -60,6 +61,7 @@ async function main () {
         create: {
           title: 'Bio',
           content: defaultContent,
+          endTimestamp: ACTIVE_POSTHISTORY_WHERE.endTimestamp.equals,
           postMetadata: {
             create: {
               user: {
@@ -93,6 +95,7 @@ async function main () {
         create: {
           title: 'Test bio [EXAMPLE]',
           content: '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"Bio b-b-b-bio.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}',
+          endTimestamp: ACTIVE_POSTHISTORY_WHERE.endTimestamp.equals,
           postMetadata: {
             create: {
               user: {

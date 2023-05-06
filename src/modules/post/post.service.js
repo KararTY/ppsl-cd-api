@@ -1,10 +1,8 @@
+import { ACTIVE_POSTHISTORY_WHERE } from '../../schemas'
+
 export const activePostHistoryInclude = {
   postHistory: {
-    where: {
-      endTimestamp: {
-        equals: null
-      }
-    },
+    where: ACTIVE_POSTHISTORY_WHERE,
     take: 1
   }
 }

@@ -7,10 +7,10 @@ export const userCore = z.object({
   id: z.string(),
   name: z.string().nonempty(),
   email: z.string().email().optional(),
-  image: z.string().optional()
+  image: z.string().nullable().optional()
 })
 
-export const userCorePublic = userCore.omit({ id: true, email: true })
+export const userCorePublic = userCore.omit({ email: true })
 
 // Requests
 

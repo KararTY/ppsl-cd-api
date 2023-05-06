@@ -27,7 +27,7 @@ export const postHistoryCore = z.object({
     }
   }).describe('Encoded with @msgpack/msgpack'),
 
-  endTimestamp: z.date().nullable(),
+  endTimestamp: z.date(),
   createdTimestamp: z.date(),
 
   postMetadataId: z.string(),

@@ -1,3 +1,5 @@
+import { ACTIVE_POSTHISTORY_WHERE, SYSTEM_IDS } from '../../schemas'
+
 /**
  * @param {PrismaClient} prisma
  */
@@ -21,7 +23,7 @@ export async function createDefaultBioPost (prisma, user) {
           isSystem: true,
           toPost: {
             connect: {
-              id: 'bio'
+              id: SYSTEM_IDS.BIO
             }
           }
         }
@@ -30,7 +32,8 @@ export async function createDefaultBioPost (prisma, user) {
         create: {
           title: 'Bio',
           content: '',
-          metadata: {
+          endTimestamp: ACTIVE_POSTHISTORY_WHERE.endTimestamp.equals,
+          postMetadata: {
             create: {
               user: {
                 connect: {

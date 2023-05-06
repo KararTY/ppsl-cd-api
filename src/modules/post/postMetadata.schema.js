@@ -1,6 +1,6 @@
-import { userCore } from '../user/user.schema.js'
+import { userCorePublic } from '../user/user.schema.js'
 import { postMetadataCore } from './post.schema.js'
 
 export const postMetadataWithUser = postMetadataCore.extend({
-  user: userCore.optional()
+  user: userCorePublic.optional()
 })
