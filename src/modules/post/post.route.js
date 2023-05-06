@@ -42,7 +42,7 @@ export default async function postRoutes (fastify) {
     }
   }, getPostById)
 
-  fastify.get('/:id/history', {
+  fastify.get('/id/:id/history', {
     schema: {
       querystring: $ref('postPaginationQueries'),
       params: $ref('postParamsId'),
