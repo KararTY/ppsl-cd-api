@@ -4,9 +4,10 @@ import helmet from 'helmet'
 import { createAuthMiddleware, getSession } from 'authey'
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 
+import { createDefaultBioPost } from '../../modules/bio/bio.service.js'
+
 import { Google } from './providers/google.js'
 import { GitHub } from './providers/github.js'
-import { createDefaultBioPost } from '../../modules/user/user.service.js'
 
 /**
  * @param {Fastify.Request} request
