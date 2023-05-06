@@ -78,9 +78,9 @@ model Post {
 model PostRelation {
   isSystem Boolean
 
-  fromPost   Post   @relation("fromPost", fields: [fromPostId], references: [id])
+  fromPost   Post   @relation("fromPost", fields: [fromPostId], references: [id], onDelete: Cascade)
   fromPostId String
-  toPost     Post   @relation("toPost", fields: [toPostId], references: [id])
+  toPost     Post   @relation("toPost", fields: [toPostId], references: [id], onDelete: Cascade)
   toPostId   String
 
   @@id([fromPostId, toPostId])
@@ -93,13 +93,13 @@ model PostHistory {
   language String @default("en")
   content String @db.Text
 
-  endTimestamp   DateTime?
+  endTimestamp   DateTime @default(now())
   createdTimestamp DateTime  @default(now())
 
   postMetadata       PostMetadata @relation(fields: [postMetadataId], references: [id])
   postMetadataId String       @unique
 
-  post         Post   @relation(fields: [postId], references: [id])
+  post         Post   @relation(fields: [postId], references: [id], onDelete: Cascade) 
   postId       String
 
   @@unique([postId, language, endTimestamp])
@@ -108,7 +108,7 @@ model PostHistory {
 model PostMetadata {
   id String @id @default(cuid())
 
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 
   postHistory PostHistory?
