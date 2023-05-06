@@ -1,3 +1,4 @@
+import errors from '../../errors.js'
 import { SYSTEM_IDS } from '../../schemas.js'
 import { postResponseWithPostHistoryContentSchema } from './post.schema.js'
 import { allPostsPaginated, postWithContentById } from './post.service.js'
@@ -61,7 +62,7 @@ export async function getPostById (request, reply) {
   const { id } = request.params
   const res = await postWithContentById(request.server.prisma, id)
 
-  if (!res) return reply.callNotFound()
+  if (!res) return reply.status(404).send(errors.FST_ERR_NOT_FOUND())
 
   // Custom transform for content using "@msgpack/msgpack".
   return postResponseWithPostHistoryContentSchema.parse(res)

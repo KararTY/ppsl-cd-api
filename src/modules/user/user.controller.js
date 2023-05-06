@@ -17,7 +17,7 @@ export async function getUserById (request, reply) {
 
   const res = await userById(request.server.prisma, id)
 
-  if (!res) return reply.callNotFound()
+  if (!res) return reply.status(404).send(errors.FST_ERR_NOT_FOUND())
 
   return res
 }
