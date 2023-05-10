@@ -70,19 +70,27 @@ export const postsFilterRequestSchema = z.object({
       postMetadata: z.object({
         userId: z.string()
       })
-    })
-  }).optional(),
+    }),
+    some: z.object({
+      title: z.object({
+        startsWith: postHistoryCore.shape.title,
+        mode: z.enum(['insensitive']).optional()
+      }),
+      language: postHistoryCore.shape.language,
+      postId: postHistoryCore.shape.postId
+    }).partial()
+  }).partial(),
   inRelations: z.object({
     some: z.object({
       fromPostId: z.string()
     })
-  }).optional(),
+  }),
   outRelations: z.object({
     some: z.object({
       toPostId: z.string()
     })
-  }).optional()
-})
+  })
+}).partial()
 
 // Responses
 
