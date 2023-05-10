@@ -4,7 +4,7 @@ import { validateBioEditor } from './lexical.controller.js'
 /**
  * @param {Fastify.Instance} fastify
  */
-export default async function userRoutes (fastify) {
+export default async function lexicalRoutes (fastify) {
   fastify.post('/bio/validate', {
     preHandler: [fastify.authenticate],
     schema: {
