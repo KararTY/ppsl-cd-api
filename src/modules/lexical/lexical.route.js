@@ -1,5 +1,5 @@
 import { $ref } from '../user/user.schema.js'
-import { validateBioEditor } from './lexical.controller.js'
+import { validateBioEditor, validateEntityEditor } from './lexical.controller.js'
 
 /**
  * @param {Fastify.Instance} fastify
@@ -12,4 +12,12 @@ export default async function lexicalRoutes (fastify) {
       description: 'Requires authorization cookie.'
     }
   }, validateBioEditor)
+
+  fastify.post('/entity/validate', {
+    preHandler: [fastify.authenticate],
+    schema: {
+      body: $ref('userProfileBioUpdateSchema'),
+      description: 'Requires authorization cookie.'
+    }
+  }, validateEntityEditor)
 }
