@@ -1,0 +1,3 @@
+[submodule "src/modules/lexical/ppsl-cd-lexical-shared"]
+	path = src/modules/lexical/ppsl-cd-lexical-shared
+	url = https://github.com/KararTY/ppsl-cd-lexical-shared
