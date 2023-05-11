@@ -1,5 +1,8 @@
 import lexical from 'lexical'
 import lexicalHeadless from '@lexical/headless'
+import { bioConfig } from './ppsl-cd-lexical-shared/src/editors/Bio/config'
+import { defaultTheme, readOnlyTheme } from './ppsl-cd-lexical-shared/src/editors/theme'
+
 const { $getRoot, $isElementNode } = lexical
 const { createHeadlessEditor } = lexicalHeadless
 
@@ -16,13 +19,11 @@ const sanitizeNode = (node) => {
 }
 
 export async function bioEditorValidation (stringifiedJSON) {
-  const bioEditor = createHeadlessEditor({
-    namespace: 'biovalidation',
-    nodes: [],
-    onError: (error) => {
-      console.error(error)
-    }
+  const theme = { ...defaultTheme, ...readOnlyTheme }
+  const config = bioConfig(theme, undefined, (error) => {
+    console.error(error)
   })
+  const bioEditor = createHeadlessEditor(config)
 
   const nextEditorState = bioEditor.parseEditorState(stringifiedJSON)
 
