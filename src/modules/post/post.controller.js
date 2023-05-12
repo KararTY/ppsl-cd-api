@@ -1,5 +1,9 @@
 import errors from '../../errors.js'
 import { SYSTEM_IDS } from '../../schemas.js'
+import { createEntity } from '../entity/entity.service.js'
+import { validateEntityEditor } from '../lexical/lexical.controller.js'
+import { getEntityMentions } from '../lexical/lexical.service.js'
+import { getAuthenticatedUserSession } from '../user/user.controller.js'
 
 import { postResponseWithPostHistoryContentSchema } from './post.schema.js'
 import { allPostsPaginated, postWithContentById } from './post.service.js'
@@ -114,3 +118,36 @@ export async function getPostHistoriesByPostId (request, reply) {
 //     postId
 //   }
 // }
+
+/**
+ * @param {Fastify.Request} request
+ * @param {Fastify.Reply} reply
+ */
+export async function createPost (request, reply) {
+  const { language, /* content, */ title } = request.body
+  // Content comes from validateEntityEditor.
+
+  if (!title || title.length === 0) return reply.code(400).send({ message: 'title property missing or empty' })
+
+  const session = await getAuthenticatedUserSession(request)
+
+  const { content: sanitizedContent, valid } = await validateEntityEditor(request, reply, true)
+
+  if (!valid) return valid // Content was invalid.
+
+  const stringifiedContent = JSON.stringify(sanitizedContent)
+
+  const mentions = await getEntityMentions(stringifiedContent)
+
+  /**
+   * Only content, title and langauge, is going to be inserted.
+   * @type {PrismaTypes.PostHistory}
+   */
+  const postHistory = {
+    title,
+    language,
+    content: stringifiedContent
+  }
+
+  return await createEntity(request.server.prisma, session.user.id, postHistory, mentions)
+}

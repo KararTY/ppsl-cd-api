@@ -1,5 +1,8 @@
 import { ACTIVE_POSTHISTORY_WHERE } from '../../schemas.js'
 
+/**
+ * @type {import('../../../.prisma/client).Prisma.PostInclude}
+ */
 export const activePostHistoryInclude = {
   postHistory: {
     where: ACTIVE_POSTHISTORY_WHERE,
@@ -22,7 +25,10 @@ export async function allPostsPaginated (prisma, cursor, filter) {
         }
       : undefined,
     where: filter,
-    include: activePostHistoryInclude
+    include: activePostHistoryInclude,
+    orderBy: {
+      createdTimestamp: 'desc'
+    }
   })
 }
 

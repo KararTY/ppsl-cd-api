@@ -54,6 +54,8 @@ model User {
   sessions      Session[]
 
   postsMetadata PostMetadata[]
+
+  createdTimestamp DateTime  @default(now())
 }
 
 // Auth.js
@@ -73,6 +75,9 @@ model Post {
   postHistory  PostHistory[]
   inRelations  PostRelation[] @relation("toPost") /// Used for relations to (Manual - By script).
   outRelations PostRelation[] @relation("fromPost") /// Used for relations from (Has been applied to).
+
+  lastUpdated   DateTime @default(now())
+  createdTimestamp DateTime  @default(now())
 }
 
 model PostRelation {

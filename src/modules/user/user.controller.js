@@ -71,5 +71,13 @@ export async function updateBio (request, reply) {
     language
   }
 
+  // Update lastUpdated for post.
+  await request.server.prisma.post.update({
+    where: { id: postHistory.postId },
+    data: {
+      lastUpdated: new Date()
+    }
+  })
+
   return await createBio(request.server.prisma, user.id, postHistory, dataToInsert)
 }

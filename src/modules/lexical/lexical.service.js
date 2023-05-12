@@ -7,8 +7,16 @@ import { $isEntityContainerNode } from './ppsl-cd-lexical-shared/src/editors/plu
 import { $isEntityImageNode } from './ppsl-cd-lexical-shared/src/editors/plugins/EntityImage/node'
 import { $isEntityShortDescriptionNode } from './ppsl-cd-lexical-shared/src/editors/plugins/EntityShortDescription/node'
 import { $isEntityLongDescriptionNode } from './ppsl-cd-lexical-shared/src/editors/plugins/EntityLongDescription/node'
+import { EntityMentionNode } from './ppsl-cd-lexical-shared/src/editors/plugins/EntityMention/node'
 
-const { $getRoot, $isElementNode, $createParagraphNode, $isParagraphNode, ParagraphNode } = lexical
+const {
+  $getRoot,
+  $isElementNode,
+  $createParagraphNode,
+  $isParagraphNode,
+  ParagraphNode,
+  $nodesOfType
+} = lexical
 const { createHeadlessEditor } = lexicalHeadless
 
 /**
@@ -32,6 +40,10 @@ const onlyTextNodes = (editor, children) => {
   for (let index = 0; index < children.length; index++) {
     const node = children[index]
     if ($isElementNode(node) && !$isParagraphNode(node)) {
+      if (node.getChildrenSize() > 1) {
+        onlyTextNodes(editor, node.getChildren())
+      }
+
       node.replace($createParagraphNode(), true)
     }
   }
@@ -87,7 +99,7 @@ function validateEntityEditor (stringifiedJSON) {
 
       // Make sure last child is entity-container
       const entityContainer = root.getLastChild()
-      if (!$isEntityContainerNode(entityConfig)) {
+      if (!$isEntityContainerNode(entityContainer)) {
         throw new Error(`First child is "${entityContainer.getType()}" and not "entity-container".`)
       }
 
@@ -131,4 +143,30 @@ export async function entityEditorValidation (stringifiedJSON) {
   } catch (error) {
     return { result: false, error: error.message }
   }
+}
+
+function entityMentions (stringifiedJSON) {
+  return new Promise((resolve, reject) => {
+    const config = entityConfig({}, undefined, (error) => {
+      console.error(error)
+      reject(error)
+    })
+
+    const entityEditor = createHeadlessEditor(config)
+
+    const nextEditorState = entityEditor.parseEditorState(stringifiedJSON)
+    entityEditor.setEditorState(nextEditorState)
+
+    entityEditor.update(() => {
+      const entityMentions = $nodesOfType(EntityMentionNode)
+
+      const postIds = entityMentions.map((node) => node.getPostId())
+
+      resolve(postIds)
+    })
+  })
+}
+
+export async function getEntityMentions (stringifiedJSON) {
+  return await entityMentions(stringifiedJSON)
 }
