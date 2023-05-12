@@ -61,9 +61,12 @@ export async function updateBio (request, reply) {
     postId: postHistoryRaw.postId
   }
 
-  // Only content, title and langauge, is going to be inserted.
+  /**
+   * Only content, title and langauge, is going to be inserted.
+   * @type {PrismaTypes.PostHistory}
+   */
   const dataToInsert = {
-    title: title || postHistoryRaw.title,
+    title: title || postHistoryRaw.title || 'Bio',
     content: JSON.stringify(sanitizedContent),
     language
   }
