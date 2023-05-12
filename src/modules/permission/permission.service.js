@@ -1,4 +1,4 @@
-import { SYSTEM_IDS } from '../../schemas.js'
+import { SYSTEM_IDS } from '../../constants.js'
 import { userAuthorByPostHistoryId } from '../user/user.service.js'
 
 const { BIO } = SYSTEM_IDS

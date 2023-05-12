@@ -1,5 +1,5 @@
 import { PrismaClient } from '../../.prisma/client/index.js'
-import { ACTIVE_POSTHISTORY_WHERE, SYSTEM_IDS } from '../../src/schemas.js'
+import { ACTIVE_POSTHISTORY_WHERE, SYSTEM_IDS } from '../../src/constants.js'
 
 const { BIO, SYSTEM, ENTITY } = SYSTEM_IDS
 const defaultContent = '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"This is a system entity.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'

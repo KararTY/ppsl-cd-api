@@ -1,5 +1,5 @@
 import { PrismaClient } from '../../.prisma/client/index.js'
-import { ACTIVE_POSTHISTORY_WHERE, SYSTEM_IDS } from '../../src/schemas.js'
+import { ACTIVE_POSTHISTORY_WHERE, SYSTEM_IDS } from '../../src/constants.js'
 
 const { BIO } = SYSTEM_IDS
 

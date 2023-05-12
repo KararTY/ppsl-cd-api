@@ -1,5 +1,5 @@
 import errors from '../../errors.js'
-import { SYSTEM_IDS } from '../../schemas.js'
+import { SYSTEM_IDS } from '../../constants.js'
 import { createEntity } from '../entity/entity.service.js'
 import { validateEntityEditor } from '../lexical/lexical.controller.js'
 import { getEntityMentions } from '../lexical/lexical.service.js'

@@ -1,4 +1,4 @@
-import { ACTIVE_POSTHISTORY_WHERE, SYSTEM_IDS } from '../../schemas.js'
+import { ACTIVE_POSTHISTORY_WHERE, SYSTEM_IDS } from '../../constants.js'
 
 /**
  * @param {PrismaClient} prisma
