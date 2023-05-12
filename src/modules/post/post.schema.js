@@ -44,6 +44,13 @@ export const postMetadataWithPostHistory = postMetadataCore.extend({
   postHistory: postHistoryCore
 })
 
+const WhereFilters = z.object({
+  equals: z.string(),
+  not: z.string(),
+  startsWith: z.string(),
+  mode: z.enum(['insensitive'])
+})
+
 // Querystrings
 
 export const cursor = z.string().optional()
@@ -72,22 +79,19 @@ export const postsFilterRequestSchema = z.object({
       })
     }),
     some: z.object({
-      title: z.object({
-        startsWith: postHistoryCore.shape.title,
-        mode: z.enum(['insensitive']).optional()
-      }),
+      title: z.union([z.string(), WhereFilters.partial()]),
       language: postHistoryCore.shape.language,
       postId: postHistoryCore.shape.postId
     }).partial()
   }).partial(),
   inRelations: z.object({
     some: z.object({
-      fromPostId: z.string()
+      fromPostId: z.union([z.string(), WhereFilters.partial()])
     })
   }),
   outRelations: z.object({
     some: z.object({
-      toPostId: z.string()
+      toPostId: z.union([z.string(), WhereFilters.partial()])
     })
   })
 }).partial()
