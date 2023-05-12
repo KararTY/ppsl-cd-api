@@ -97,43 +97,21 @@ export async function getPostHistoriesByPostId (request, reply) {
   }
 }
 
-// /**
-//  * @param {Fastify.Request} request
-//  * @param {Fastify.Reply} reply
-//  */
-// export async function postPost (request, reply) {
-//   const { postId } = request.params
-//
-//   const body = {
-//     ...request.body,
-//     postId
-//   }
-//
-//   const { id } = await request.server.prisma.post.create({
-//     data: body
-//   })
-//
-//   return {
-//     id,
-//     postId
-//   }
-// }
-
 /**
  * @param {Fastify.Request} request
  * @param {Fastify.Reply} reply
  */
-export async function createPost (request, reply) {
+export async function createEntityPost (request, reply) {
   const { language, /* content, */ title } = request.body
   // Content comes from validateEntityEditor.
 
-  if (!title || title.length === 0) return reply.code(400).send({ message: 'title property missing or empty' })
+  if (!title || title.length === 0) return reply.status(400).send({ message: 'title property missing or empty' })
 
   const session = await getAuthenticatedUserSession(request)
 
   const { content: sanitizedContent, valid } = await validateEntityEditor(request, reply, true)
 
-  if (!valid) return valid // Content was invalid.
+  if (!valid) return reply.status(400).send({ message: 'Editor content was invalid.' }) // Content was invalid.
 
   const stringifiedContent = JSON.stringify(sanitizedContent)
 

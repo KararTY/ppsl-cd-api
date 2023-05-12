@@ -50,7 +50,7 @@ export async function updateBio (request, reply) {
 
   const { content: sanitizedContent, valid } = await validateBioEditor(request, reply, true)
 
-  if (!valid) return valid // Content was invalid.
+  if (!valid) return reply.status(400).send({ message: 'Editor content was invalid.' }) // Content was invalid.
 
   const user = await userById(request.server.prisma, session.user.id)
 

@@ -1,4 +1,10 @@
-import { getAllSystemPosts, getPostById, getAllPosts, getPostHistoriesByPostId, createPost } from './post.controller.js'
+import {
+  getAllSystemPosts,
+  getPostById,
+  getAllPosts,
+  getPostHistoriesByPostId,
+  createEntityPost
+} from './post.controller.js'
 import { $ref } from './post.schema.js'
 import { $ref as $refUser } from '../user/user.schema.js'
 
@@ -59,7 +65,7 @@ export default async function postRoutes (fastify) {
       body: $refUser('userProfileBioUpdateSchema'),
       description: 'Requires authorization cookie.'
     }
-  }, createPost)
+  }, createEntityPost)
 
   // fastify.get('/id/:id/history/:historyId', {
   //   schema: {
@@ -69,10 +75,4 @@ export default async function postRoutes (fastify) {
   //     // }
   //   }
   // }, getPostHistoryByHistoryId)
-
-  // fastify.post('/post/:postId', {
-  //   schema: {
-  //     body: $ref('postRequestSchema')
-  //   }
-  // }, postPost)
 }
