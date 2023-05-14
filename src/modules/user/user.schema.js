@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { buildJsonSchemas } from 'fastify-zod'
 
-import { postHistoryCore } from '../post/post.schema.js'
+import { postHistoryCore, postHistoryEssentials } from '../post/post.schema.js'
 
 // Core
 
@@ -16,11 +16,7 @@ export const userCorePublic = userCore.omit({ email: true })
 
 // Requests
 
-export const userProfileBioUpdateSchema = z.object({
-  title: z.string().optional(),
-  // language: z.string().optional().default('en'),
-  content: z.string().describe('Encoded by @msgpack/msgpack')
-})
+export const userProfileBioUpdateSchema = postHistoryEssentials
 
 // Responses
 

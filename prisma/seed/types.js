@@ -1,7 +1,7 @@
 import { PrismaClient } from '../../.prisma/client/index.js'
 import { ACTIVE_POSTHISTORY_WHERE, SYSTEM_IDS } from '../../src/constants.js'
 
-const { BIO, SYSTEM, ENTITY } = SYSTEM_IDS
+const { BIO, SYSTEM, ENTITY, REVIEW } = SYSTEM_IDS
 const defaultContent = '{"root":{"children":[{"children":[{"detail":0,"format":0,"mode":"normal","style":"","text":"This is a system entity.","type":"text","version":1}],"direction":"ltr","format":"","indent":0,"type":"paragraph","version":1}],"direction":"ltr","format":"","indent":0,"type":"root","version":1}}'
 
 const prisma = new PrismaClient()
@@ -93,6 +93,40 @@ async function main () {
       postHistory: {
         create: {
           title: 'Entity',
+          content: defaultContent,
+          endTimestamp: ACTIVE_POSTHISTORY_WHERE.endTimestamp.equals,
+          postMetadata: {
+            create: {
+              user: {
+                connect: {
+                  id: sysUser.id
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  })
+
+  await prisma.post.upsert({
+    where: { id: REVIEW },
+    update: {},
+    create: {
+      id: REVIEW,
+      outRelations: {
+        create: {
+          isSystem: true,
+          toPost: {
+            connect: {
+              id: sysPost.id
+            }
+          }
+        }
+      },
+      postHistory: {
+        create: {
+          title: 'Review',
           content: defaultContent,
           endTimestamp: ACTIVE_POSTHISTORY_WHERE.endTimestamp.equals,
           postMetadata: {

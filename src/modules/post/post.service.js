@@ -43,3 +43,35 @@ export async function postWithContentById (prisma, id) {
     include: activePostHistoryInclude
   })
 }
+
+/**
+ * @param {PrismaClient} prisma
+ */
+export async function postWithSystemRelationsById (prisma, id) {
+  return await prisma.post.findFirst({
+    where: {
+      id
+    },
+    include: {
+      outRelations: {
+        select: {
+          isSystem: true,
+          toPostId: true,
+          toPost: {
+            select: {
+              postHistory: {
+                select: {
+                  title: true,
+                  language: true
+                }
+              }
+            }
+          }
+        },
+        where: {
+          isSystem: true
+        }
+      }
+    }
+  })
+}

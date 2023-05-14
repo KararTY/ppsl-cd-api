@@ -44,6 +44,12 @@ export const postMetadataWithPostHistory = postMetadataCore.extend({
   postHistory: postHistoryCore
 })
 
+export const postHistoryEssentials = z.object({
+  title: z.string().optional(),
+  // language: z.string().optional().default('en'),
+  content: z.string().describe('Encoded by @msgpack/msgpack')
+})
+
 const WhereStringFilters = z.object({
   equals: z.string(),
   not: z.string(),
@@ -87,6 +93,8 @@ const WhereOptions = z.object({
   })
 })
 
+const ReviewTypes = z.enum(['NEUTRAL', 'NEGATIVE', 'POSITIVE'])
+
 // Querystrings
 
 export const cursor = z.string().optional()
@@ -110,6 +118,8 @@ export const postHistoryParamsId = z.object({
 export const postsFilterRequestSchema = z.object({
   AND: z.array(WhereOptions.partial())
 }).merge(WhereOptions).partial()
+
+export const postReviewAddRequestSchema = postHistoryEssentials.required().merge(z.object({ type: ReviewTypes }))
 
 // Responses
 
@@ -137,6 +147,25 @@ export const postHistoriesPaginatedResponseSchema = z.object({
   cursor
 })
 
+export const postReviewResponseSchema = z.object({
+  id: z.string(),
+  type: ReviewTypes,
+  userId: z.string(),
+  fromPost: z.object({
+    id: z.string(),
+    createdTimestamp: z.date(),
+    postHistory: z.array(postHistoryCore.pick({ content: true, title: true, language: true }))
+  }).optional(),
+  toPostId: z.string()
+})
+
+export const postReviewsPaginatedResponseSchema = z.object({
+  result: z.array(postReviewResponseSchema.merge(z.object({
+    user: z.object({ name: z.string() })
+  }))),
+  cursor
+})
+
 // Build
 
 export const { schemas: postSchemas, $ref } = buildJsonSchemas({
@@ -144,12 +173,15 @@ export const { schemas: postSchemas, $ref } = buildJsonSchemas({
   postsPaginatedResponseSchema,
   postResponseSchema,
   postResponseWithPostHistoryContentSchema,
+  postReviewAddRequestSchema,
+  postReviewResponseSchema,
 
   postParamsId,
   postPaginationQueries,
 
   postHistoryParamsId,
-  postHistoriesPaginatedResponseSchema
+  postHistoriesPaginatedResponseSchema,
+  postReviewsPaginatedResponseSchema
 }, { $id: 'post' })
 
 /**

@@ -1,13 +1,16 @@
 import errors from '../../errors.js'
-import { SYSTEM_IDS } from '../../constants.js'
+import { ACTIVE_POSTHISTORY_WHERE, SYSTEM_IDS } from '../../constants.js'
 import { createEntity } from '../entity/entity.service.js'
-import { validateEntityEditor } from '../lexical/lexical.controller.js'
+import { validateBioEditor, validateEntityEditor } from '../lexical/lexical.controller.js'
 import { getEntityMentions } from '../lexical/lexical.service.js'
 import { getAuthenticatedUserSession } from '../user/user.controller.js'
 
-import { postResponseWithPostHistoryContentSchema } from './post.schema.js'
-import { allPostsPaginated, postWithContentById } from './post.service.js'
+import { postResponseWithPostHistoryContentSchema, postReviewResponseSchema, postReviewsPaginatedResponseSchema } from './post.schema.js'
+import { allPostsPaginated, postWithContentById, postWithSystemRelationsById } from './post.service.js'
 import { allPostHistoriesPaginated } from './postHistory.service.js'
+import { createReview } from '../review/review.service.js'
+import { allReviewsForPostIdPaginated, reviewByUserIdAndPostId } from './postReview.service.js'
+import { postRelationDeleteAllByToPostId } from './postRelation.service.js'
 
 /**
  * @param {Fastify.Request} request
@@ -128,4 +131,183 @@ export async function createEntityPost (request, reply) {
   }
 
   return await createEntity(request.server.prisma, session.user.id, postHistory, mentions)
+}
+
+/**
+ * @param {Fastify.Request} request
+ * @param {Fastify.Reply} reply
+ */
+export async function updateReview (request, reply) {
+  const { id } = request.params
+
+  // Does post we're doing a review for exist?
+  const post = await postWithSystemRelationsById(request.server.prisma, id)
+
+  if (!post) return reply.status(404).send(errors.FST_ERR_NOT_FOUND())
+
+  // Can we do a review for it?
+  // TODO: In the future, allow reviews on anything (But maybe not reviews).
+  if (!post.outRelations.some((relation) => relation && relation.toPostId === SYSTEM_IDS.ENTITY)) return reply.status(400).send({ message: 'can\'t do review for this type of content' })
+
+  const { language, /* content, */ title, type } = request.body
+  // Content comes from validateReviewEditor.
+
+  if (!title || title.length === 0) return reply.status(400).send({ message: 'title property missing or empty' })
+
+  const session = await getAuthenticatedUserSession(request)
+
+  // TODO: Create validateReviewEditor
+  const { content: sanitizedContent, valid } = await validateBioEditor(request, reply, true)
+
+  if (!valid) return reply.status(400).send({ message: 'Editor content was invalid.' }) // Content was invalid.
+
+  const stringifiedContent = JSON.stringify(sanitizedContent)
+
+  /**
+   * @type {PrismaTypes.PostHistory}
+   */
+  const postHistory = {
+    title,
+    language,
+    type,
+    content: stringifiedContent
+  }
+
+  const mentions = await getEntityMentions(stringifiedContent)
+  const outRelations = mentions.map((mentionPostId) => ({ isSystem: false, toPostId: mentionPostId }))
+
+  let fromPostId
+
+  const reviewPost = await reviewByUserIdAndPostId(request.server.prisma, session.user.id, post.id)
+
+  if (!reviewPost) {
+    const { id } = await request.server.prisma.post.create({
+      data: {
+        outRelations: {
+          createMany: {
+            data: [
+              {
+                isSystem: true,
+                toPostId: SYSTEM_IDS.REVIEW
+              },
+              ...outRelations
+            ],
+            skipDuplicates: true
+          }
+        }
+      }
+    })
+
+    await request.server.prisma.postReview.create({
+      data: {
+        type: type || 'NEUTRAL',
+        user: {
+          connect: {
+            id: session.user.id
+          }
+        },
+        fromPost: {
+          connect: {
+            id
+          }
+        },
+        toPost: {
+          connect: {
+            id: post.id
+          }
+        }
+      }
+    })
+
+    fromPostId = id
+  } else {
+    fromPostId = reviewPost.fromPostId
+
+    await request.server.prisma.postReview.update({
+      where: {
+        id: reviewPost.id
+      },
+      data: {
+        type
+      }
+    })
+
+    const existingSystemOutRelations = reviewPost.fromPost.outRelations.filter((relation) => relation.isSystem)
+
+    await postRelationDeleteAllByToPostId(request.server.prisma, post.id)
+
+    await request.server.prisma.post.update({
+      where: {
+        id: fromPostId
+      },
+      data: {
+        outRelations: {
+          createMany: {
+            data: [
+              {
+                isSystem: true,
+                toPostId: SYSTEM_IDS.REVIEW
+              },
+              ...existingSystemOutRelations,
+              ...outRelations
+            ],
+            skipDuplicates: true
+          }
+        },
+        lastUpdated: new Date()
+      }
+    })
+
+    // Add endTimestamp on previous postHistory.
+    await request.server.prisma.postHistory.update({
+      where: {
+        postId_language_endTimestamp: {
+          endTimestamp: ACTIVE_POSTHISTORY_WHERE.endTimestamp.equals,
+          language: language || 'en',
+          postId: reviewPost.fromPostId
+        }
+      },
+      data: {
+        endTimestamp: new Date()
+      }
+    })
+  }
+
+  return await createReview(request.server.prisma, session.user.id, fromPostId, post.id, postHistory, mentions)
+}
+
+/**
+ * @param {Fastify.Request} request
+ * @param {Fastify.Reply} reply
+ */
+export async function getAllPostReviews (request, reply) {
+  const { id } = request.params
+  const { cursor } = request.query
+
+  const res = await allReviewsForPostIdPaginated(request.server.prisma, id, cursor)
+
+  if (res.length === 0) {
+    return {
+      result: [],
+      cursor
+    }
+  }
+
+  return postReviewsPaginatedResponseSchema.parse({
+    result: res,
+    cursor: res[res.length - 1].id
+  })
+}
+
+export async function getUserReviewByPostId (request, reply) {
+  const { id } = request.params
+
+  const session = await getAuthenticatedUserSession(request)
+
+  const res = await reviewByUserIdAndPostId(request.server.prisma, session.user.id, id)
+
+  if (!res) return reply.status(404).send(errors.FST_ERR_NOT_FOUND())
+
+  // Custom transform for content using `@msgpack/msgpack`.
+  return postReviewResponseSchema.parse(res)
 }

@@ -55,7 +55,9 @@ model User {
 
   postsMetadata PostMetadata[]
 
-  createdTimestamp DateTime  @default(now())
+  createdTimestamp DateTime @default(now())
+
+  postReviews PostReview[]
 }
 
 // Auth.js
@@ -70,14 +72,18 @@ model VerificationToken {
 // Data
 
 model Post {
-  id String @default(cuid()) @id
+  id String @id @default(cuid())
 
   postHistory  PostHistory[]
   inRelations  PostRelation[] @relation("toPost") /// Used for relations to (Manual - By script).
   outRelations PostRelation[] @relation("fromPost") /// Used for relations from (Has been applied to).
 
-  lastUpdated   DateTime @default(now())
-  createdTimestamp DateTime  @default(now())
+  lastUpdated      DateTime @default(now())
+  createdTimestamp DateTime @default(now())
+
+  reviewedBy PostReview[] @relation("toPost")
+
+  reviewing PostReview? @relation("fromPost")
 }
 
 model PostRelation {
@@ -94,18 +100,18 @@ model PostRelation {
 model PostHistory {
   id String @unique @default(cuid())
 
-  title String
+  title    String
   language String @default("en")
-  content String @db.Text
+  content  String @db.Text
 
-  endTimestamp   DateTime @default(now())
-  createdTimestamp DateTime  @default(now())
+  endTimestamp     DateTime @default(now())
+  createdTimestamp DateTime @default(now())
 
-  postMetadata       PostMetadata @relation(fields: [postMetadataId], references: [id])
+  postMetadata   PostMetadata @relation(fields: [postMetadataId], references: [id], onDelete: Cascade)
   postMetadataId String       @unique
 
-  post         Post   @relation(fields: [postId], references: [id], onDelete: Cascade) 
-  postId       String
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
 
   @@unique([postId, language, endTimestamp])
 }
@@ -117,4 +123,25 @@ model PostMetadata {
   userId String
 
   postHistory PostHistory?
+}
+
+enum PostReviewTypes {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
+model PostReview {
+  id String @id @default(cuid())
+
+  type PostReviewTypes
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  fromPost   Post?   @relation("fromPost", fields: [fromPostId], references: [id], onDelete: Cascade)
+  fromPostId String? @unique
+
+  toPost   Post  @relation("toPost", fields: [toPostId], references: [id], onDelete: Cascade)
+  toPostId String
 }
