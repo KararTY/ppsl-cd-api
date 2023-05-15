@@ -1,5 +1,5 @@
 import errors from '../../errors.js'
-import { ACTIVE_POSTHISTORY_WHERE, SYSTEM_IDS } from '../../constants.js'
+import { SYSTEM_IDS } from '../../constants.js'
 import { createEntity } from '../entity/entity.service.js'
 import { validateBioEditor, validateEntityEditor } from '../lexical/lexical.controller.js'
 import { getEntityMentions } from '../lexical/lexical.service.js'
@@ -8,9 +8,8 @@ import { getAuthenticatedUserSession } from '../user/user.controller.js'
 import { postResponseWithPostHistoryContentSchema, postReviewResponseSchema, postReviewsPaginatedResponseSchema } from './post.schema.js'
 import { allPostsPaginated, postWithContentById, postWithSystemRelationsById } from './post.service.js'
 import { allPostHistoriesPaginated } from './postHistory.service.js'
-import { createReview } from '../review/review.service.js'
+import { createReview, createReviewPostHistory, updateReview } from '../review/review.service.js'
 import { allReviewsForPostIdPaginated, reviewByUserIdAndPostId } from './postReview.service.js'
-import { postRelationDeleteAllByToPostId } from './postRelation.service.js'
 
 /**
  * @param {Fastify.Request} request
@@ -137,7 +136,7 @@ export async function createEntityPost (request, reply) {
  * @param {Fastify.Request} request
  * @param {Fastify.Reply} reply
  */
-export async function updateReview (request, reply) {
+export async function upsertReview (request, reply) {
   const { id } = request.params
 
   // Does post we're doing a review for exist?
@@ -181,99 +180,14 @@ export async function updateReview (request, reply) {
   const reviewPost = await reviewByUserIdAndPostId(request.server.prisma, session.user.id, post.id)
 
   if (!reviewPost) {
-    const { id } = await request.server.prisma.post.create({
-      data: {
-        outRelations: {
-          createMany: {
-            data: [
-              {
-                isSystem: true,
-                toPostId: SYSTEM_IDS.REVIEW
-              },
-              ...outRelations
-            ],
-            skipDuplicates: true
-          }
-        }
-      }
-    })
-
-    await request.server.prisma.postReview.create({
-      data: {
-        type: type || 'NEUTRAL',
-        user: {
-          connect: {
-            id: session.user.id
-          }
-        },
-        fromPost: {
-          connect: {
-            id
-          }
-        },
-        toPost: {
-          connect: {
-            id: post.id
-          }
-        }
-      }
-    })
-
+    const id = await createReview(request.server.prisma, session.user.id, postHistory, post.id, outRelations)
     fromPostId = id
   } else {
     fromPostId = reviewPost.fromPostId
-
-    await request.server.prisma.postReview.update({
-      where: {
-        id: reviewPost.id
-      },
-      data: {
-        type
-      }
-    })
-
-    const existingSystemOutRelations = reviewPost.fromPost.outRelations.filter((relation) => relation.isSystem)
-
-    await postRelationDeleteAllByToPostId(request.server.prisma, post.id)
-
-    await request.server.prisma.post.update({
-      where: {
-        id: fromPostId
-      },
-      data: {
-        outRelations: {
-          createMany: {
-            data: [
-              {
-                isSystem: true,
-                toPostId: SYSTEM_IDS.REVIEW
-              },
-              ...existingSystemOutRelations,
-              ...outRelations
-            ],
-            skipDuplicates: true
-          }
-        },
-        lastUpdated: new Date()
-      }
-    })
-
-    // Add endTimestamp on previous postHistory.
-    await request.server.prisma.postHistory.update({
-      where: {
-        postId_language_endTimestamp: {
-          endTimestamp: ACTIVE_POSTHISTORY_WHERE.endTimestamp.equals,
-          language: language || 'en',
-          postId: reviewPost.fromPostId
-        }
-      },
-      data: {
-        endTimestamp: new Date()
-      }
-    })
+    await updateReview(request.server.prisma, reviewPost, post.id, postHistory, outRelations)
   }
 
-  return await createReview(request.server.prisma, session.user.id, fromPostId, post.id, postHistory, mentions)
+  return await createReviewPostHistory(request.server.prisma, session.user.id, fromPostId, post.id, postHistory, mentions)
 }
 
 /**

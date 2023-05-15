@@ -1,11 +1,11 @@
 /**
  * @param {PrismaClient} prisma
- * @param {string} toPostId
+ * @param {string} fromPostId
  */
-export async function postRelationDeleteAllByToPostId (prisma, toPostId) {
+export async function postRelationDeleteByFromPostId (prisma, fromPostId) {
   return await prisma.postRelation.deleteMany({
     where: {
-      toPostId
+      fromPostId
     }
   })
 }

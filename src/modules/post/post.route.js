@@ -4,9 +4,9 @@ import {
   getAllPosts,
   getPostHistoriesByPostId,
   createEntityPost,
-  updateReview,
   getAllPostReviews,
-  getUserReviewByPostId
+  getUserReviewByPostId,
+  upsertReview
 } from './post.controller.js'
 import { $ref } from './post.schema.js'
 import { $ref as $refUser } from '../user/user.schema.js'
@@ -97,14 +97,5 @@ export default async function postRoutes (fastify) {
       body: $ref('postReviewAddRequestSchema'),
       description: 'Requires authorization cookie.'
     }
-  }, updateReview)
-
-  // fastify.get('/id/:id/history/:historyId', {
-  //   schema: {
-  //     params: $ref('postHistoryParamsId'),
-  //     // response: {
-  //     //   200: $ref('postHistoryResponseSchema')
-  //     // }
-  //   }
-  // }, getPostHistoryByHistoryId)
+  }, upsertReview)
 }
