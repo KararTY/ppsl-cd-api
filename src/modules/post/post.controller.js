@@ -5,11 +5,12 @@ import { validateBioEditor, validateEntityEditor } from '../lexical/lexical.cont
 import { getEntityMentions } from '../lexical/lexical.service.js'
 import { getAuthenticatedUserSession } from '../user/user.controller.js'
 
-import { postResponseWithPostHistoryContentAndOutRelationsSchema, postReviewResponseSchema, postReviewsPaginatedResponseSchema } from './post.schema.js'
+import { postReviewResponseSchema, postReviewsPaginatedResponseSchema, postWithPostHistoryContentAndOutRelationsResponseSchema } from './post.schema.js'
 import { allPostsPaginated, postWithContentById, postWithSystemRelationsById } from './post.service.js'
 import { allPostHistoriesPaginated } from './postHistory.service.js'
 import { createReview, createReviewPostHistory, updateReview } from '../review/review.service.js'
 import { allReviewsForPostIdPaginated, reviewByUserIdAndPostId } from './postReview.service.js'
+import { postAuthors } from '../user/user.service.js'
 
 /**
  * @param {Fastify.Request} request
@@ -71,7 +72,7 @@ export async function getPostById (request, reply) {
   if (!res) return reply.status(404).send(errors.FST_ERR_NOT_FOUND())
 
   // Custom transform for content using `@msgpack/msgpack`.
-  return postResponseWithPostHistoryContentAndOutRelationsSchema.parse(res)
+  return postWithPostHistoryContentAndOutRelationsResponseSchema.parse(res)
 }
 
 /**
@@ -224,4 +225,18 @@ export async function getUserReviewByPostId (request, reply) {
 
   // Custom transform for content using `@msgpack/msgpack`.
   return postReviewResponseSchema.parse(res)
+}
+
+/**
+ * @param {Fastify.Request} request
+ * @param {Fastify.Reply} reply
+ */
+export async function getPostAuthors (request, reply) {
+  const { id } = request.params
+
+  const res = await postAuthors(request.server.prisma, id)
+
+  if (!res) return reply.status(404).send(errors.FST_ERR_NOT_FOUND())
+
+  return res
 }

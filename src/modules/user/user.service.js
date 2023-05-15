@@ -81,3 +81,24 @@ export async function userAuthorByPostHistoryId (prisma, postHistoryId) {
     }
   })
 }
+
+/**
+ * @param {PrismaClient} prisma
+ */
+export async function postAuthors (prisma, id) {
+  return await prisma.user.findMany({
+    where: {
+      postsMetadata: {
+        some: {
+          postHistory: {
+            postId: id
+          }
+        }
+      }
+    },
+    select: {
+      id: true,
+      name: true
+    }
+  })
+}

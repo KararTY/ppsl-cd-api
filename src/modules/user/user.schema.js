@@ -28,12 +28,15 @@ export const userProfileResponseSchema = userCorePublic.extend({
   bio: postHistoryCore.pick({ title: true, content: true, postId: true, createdTimestamp: true }).optional()
 })
 
+export const usersOnlyNameAndIdResponseSchema = z.array(userCore.pick({ name: true, id: true }))
+
 // Build
 
 export const { schemas: userSchemas, $ref } = buildJsonSchemas({
   userProfileBioUpdateSchema,
   userSessionResponseSchema,
-  userProfileResponseSchema
+  userProfileResponseSchema,
+  usersOnlyNameAndIdResponseSchema
 }, { $id: 'user' })
 
 // Used for IDE typings

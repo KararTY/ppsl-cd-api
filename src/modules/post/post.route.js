@@ -6,7 +6,8 @@ import {
   createEntityPost,
   getAllPostReviews,
   getUserReviewByPostId,
-  upsertReview
+  upsertReview,
+  getPostAuthors
 } from './post.controller.js'
 import { $ref } from './post.schema.js'
 import { $ref as $refUser } from '../user/user.schema.js'
@@ -47,7 +48,7 @@ export default async function postRoutes (fastify) {
     schema: {
       params: $ref('postParamsId'),
       response: {
-        200: $ref('postResponseWithPostHistoryContentAndOutRelationsSchema')
+        200: $ref('postWithPostHistoryContentAndOutRelationsResponseSchema')
       }
     }
   }, getPostById)
@@ -99,4 +100,13 @@ export default async function postRoutes (fastify) {
       description: 'Requires authorization cookie.'
     }
   }, upsertReview)
+
+  fastify.get('/id/:id/authors', {
+    schema: {
+      params: $ref('postParamsId'),
+      response: {
+        200: $refUser('usersOnlyNameAndIdResponseSchema')
+      }
+    }
+  }, getPostAuthors)
 }
