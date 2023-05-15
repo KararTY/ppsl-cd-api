@@ -1,6 +1,7 @@
 import errors from '../../errors.js'
 import { createBio } from '../bio/bio.service.js'
 import { validateBioEditor } from '../lexical/lexical.controller.js'
+import { updatePostLastUpdatedById } from '../post/post.service.js'
 
 import { userProfileResponseSchema } from './user.schema.js'
 import { userById } from './user.service.js'
@@ -71,13 +72,7 @@ export async function updateBio (request, reply) {
     language
   }
 
-  // Update lastUpdated for post.
-  await request.server.prisma.post.update({
-    where: { id: postHistory.postId },
-    data: {
-      lastUpdated: new Date()
-    }
-  })
+  await updatePostLastUpdatedById(request.server.prisma, postHistory.postId, new Date())
 
   return await createBio(request.server.prisma, user.id, postHistory, dataToInsert)
 }

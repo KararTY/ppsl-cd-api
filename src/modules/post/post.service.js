@@ -75,3 +75,19 @@ export async function postWithSystemRelationsById (prisma, id) {
     }
   })
 }
+
+/**
+ * @param {PrismaClient} prisma
+ */
+export async function updatePostLastUpdatedById (prisma, id, newLastUpdated) {
+  const { lastUpdated } = await prisma.post.update({
+    where: {
+      id
+    },
+    data: {
+      lastUpdated: newLastUpdated
+    }
+  })
+
+  return lastUpdated
+}
