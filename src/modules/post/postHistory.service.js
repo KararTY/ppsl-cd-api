@@ -42,3 +42,20 @@ export async function allPostHistoriesPaginated (prisma, cursor, filter) {
     }
   })
 }
+
+/**
+ * @param {PrismaClient} prisma
+ * @param {import('../../../.prisma/client').Prisma.PostHistoryPostIdLanguageEndTimestampCompoundUniqueInput} postIdLanguageEndTimestamp
+ */
+export async function updatePostHistoryEndTimestampByCompoundUniqueId (prisma, postIdLanguageEndTimestamp, newEndTimestamp) {
+  const { endTimestamp } = await prisma.postHistory.update({
+    where: {
+      postId_language_endTimestamp: postIdLanguageEndTimestamp
+    },
+    data: {
+      endTimestamp: newEndTimestamp
+    }
+  })
+
+  return endTimestamp
+}

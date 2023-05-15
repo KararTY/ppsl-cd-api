@@ -1,4 +1,5 @@
 import { ACTIVE_POSTHISTORY_WHERE, SYSTEM_IDS } from '../../constants.js'
+import { updatePostHistoryEndTimestampByCompoundUniqueId } from '../post/postHistory.service.js'
 
 /**
  * @param {PrismaClient} prisma
@@ -67,18 +68,11 @@ export async function createBio (prisma, userId, postHistory, data) {
   }).postHistory()
 
   // Add endTimestamp on previous postHistory.
-  await prisma.postHistory.update({
-    where: {
-      postId_language_endTimestamp: {
-        endTimestamp: ACTIVE_POSTHISTORY_WHERE.endTimestamp.equals,
-        language: data.language || 'en',
-        postId: postHistory.postId
-      }
-    },
-    data: {
-      endTimestamp: new Date()
-    }
-  })
+  await updatePostHistoryEndTimestampByCompoundUniqueId(prisma, {
+    endTimestamp: ACTIVE_POSTHISTORY_WHERE.endTimestamp.equals,
+    language: data.language || 'en',
+    postId: postHistory.postId
+  }, new Date())
 
   // Enable new postHistory.
   await prisma.postHistory.update({
