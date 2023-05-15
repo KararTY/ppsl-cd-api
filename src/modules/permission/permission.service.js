@@ -1,7 +1,7 @@
 import { SYSTEM_IDS } from '../../constants.js'
 import { userAuthorByPostHistoryId } from '../user/user.service.js'
 
-const { BIO } = SYSTEM_IDS
+const { BIO, REVIEW } = SYSTEM_IDS
 
 /**
  * @type {import('../../../.prisma/client').Prisma.PostRelationInclude}
@@ -64,6 +64,11 @@ export async function userHasPermissionWriteForPostId (prisma, user, postHistory
   }
 
   // TODO: This post is a review, write permission is exclusive to its own author.
+  const reviewRelation = systemRelations.find((relation) => relation.toPostId === REVIEW)
+  if (reviewRelation) {
+    const author = await userAuthorByPostHistoryId(prisma, postHistory.id)
+    return author.id === user.id
+  }
 
   // TODO: This post is an entity, permission is write for all registered users.
 
