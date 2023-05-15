@@ -47,7 +47,7 @@ export default async function postRoutes (fastify) {
     schema: {
       params: $ref('postParamsId'),
       response: {
-        200: $ref('postResponseWithPostHistoryContentSchema')
+        200: $ref('postResponseWithPostHistoryContentAndOutRelationsSchema')
       }
     }
   }, getPostById)
@@ -85,7 +85,8 @@ export default async function postRoutes (fastify) {
       params: $ref('postParamsId'),
       response: {
         200: $ref('postReviewResponseSchema')
-      }
+      },
+      description: 'Requires authorization cookie.'
     }
   }, getUserReviewByPostId)
 

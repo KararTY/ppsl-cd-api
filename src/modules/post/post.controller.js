@@ -5,7 +5,7 @@ import { validateBioEditor, validateEntityEditor } from '../lexical/lexical.cont
 import { getEntityMentions } from '../lexical/lexical.service.js'
 import { getAuthenticatedUserSession } from '../user/user.controller.js'
 
-import { postResponseWithPostHistoryContentSchema, postReviewResponseSchema, postReviewsPaginatedResponseSchema } from './post.schema.js'
+import { postResponseWithPostHistoryContentAndOutRelationsSchema, postReviewResponseSchema, postReviewsPaginatedResponseSchema } from './post.schema.js'
 import { allPostsPaginated, postWithContentById, postWithSystemRelationsById } from './post.service.js'
 import { allPostHistoriesPaginated } from './postHistory.service.js'
 import { createReview, createReviewPostHistory, updateReview } from '../review/review.service.js'
@@ -71,7 +71,7 @@ export async function getPostById (request, reply) {
   if (!res) return reply.status(404).send(errors.FST_ERR_NOT_FOUND())
 
   // Custom transform for content using `@msgpack/msgpack`.
-  return postResponseWithPostHistoryContentSchema.parse(res)
+  return postResponseWithPostHistoryContentAndOutRelationsSchema.parse(res)
 }
 
 /**

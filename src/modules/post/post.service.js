@@ -40,7 +40,27 @@ export async function postWithContentById (prisma, id) {
     where: {
       id
     },
-    include: activePostHistoryInclude
+    include: {
+      outRelations: {
+        select: {
+          toPost: {
+            select: {
+              id: true,
+              postHistory: {
+                select: {
+                  title: true,
+                  language: true
+                },
+                where: activePostHistoryInclude.postHistory.where,
+                take: 1
+              }
+            }
+          },
+          isSystem: true
+        }
+      },
+      postHistory: activePostHistoryInclude.postHistory
+    }
   })
 }
 

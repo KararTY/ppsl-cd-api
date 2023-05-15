@@ -131,8 +131,14 @@ export const postResponseSchema = postCore.extend({
   }))
 })
 
-export const postResponseWithPostHistoryContentSchema = postCore.extend({
-  postHistory: z.array(postHistoryCore)
+export const postResponseWithPostHistoryContentAndOutRelationsSchema = postCore.extend({
+  postHistory: z.array(postHistoryCore),
+  outRelations: z.array(z.object({
+    isSystem: z.boolean(),
+    toPost: postCore.extend({
+      postHistory: z.array(postHistoryCore.pick({ language: true, title: true }))
+    })
+  }))
 })
 
 export const postsPaginatedResponseSchema = z.object({
@@ -172,7 +178,7 @@ export const { schemas: postSchemas, $ref } = buildJsonSchemas({
   postsFilterRequestSchema,
   postsPaginatedResponseSchema,
   postResponseSchema,
-  postResponseWithPostHistoryContentSchema,
+  postResponseWithPostHistoryContentAndOutRelationsSchema,
   postReviewAddRequestSchema,
   postReviewResponseSchema,
 
