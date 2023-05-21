@@ -1,6 +1,7 @@
 import { decode } from '@msgpack/msgpack'
 
 import { bioEditorValidation, entityEditorValidation } from './lexical.service.js'
+import { InvalidEditor } from '../../errors.js'
 
 /**
  * @param {Fastify.Request} request
@@ -10,7 +11,7 @@ import { bioEditorValidation, entityEditorValidation } from './lexical.service.j
 export async function validateBioEditor (request, reply, internalRequest) {
   const body = request.body
 
-  if (body.length === 0) return reply.status(400).send()
+  if (body.length === 0) return InvalidEditor(reply)
 
   let content
   try {
@@ -39,7 +40,7 @@ export async function validateBioEditor (request, reply, internalRequest) {
 export async function validateEntityEditor (request, reply, internalRequest) {
   const body = request.body
 
-  if (body.length === 0) return reply.status(400).send()
+  if (body.length === 0) return InvalidEditor(reply)
 
   let content
   try {
