@@ -125,6 +125,16 @@ export const postReviewAddRequestSchema = postHistoryEssentials.required().merge
 
 // Responses
 
+export const postReviewResponseSchema = z.object({
+  id: z.string(),
+  type: ReviewTypes,
+  userId: z.string(),
+  fromPost: postCore.partial().extend({
+    postHistory: z.array(postHistoryCore.pick({ content: true, title: true, language: true }))
+  }).optional(),
+  toPostId: z.string()
+})
+
 export const postResponseSchema = postCore.partial().extend({
   postHistory: z.array(postHistoryCore.pick({
     title: true,
@@ -140,31 +150,31 @@ export const postWithPostHistoryContentAndOutRelationsResponseSchema = postCore.
     toPost: postCore.partial().extend({
       postHistory: z.array(postHistoryCore.pick({ language: true, title: true }))
     })
-  }))
+  })),
+  reviewing: z.union([z.null(), z.object({
+    toPost: postCore.pick({ id: true }).extend({
+      postHistory: z.array(postHistoryCore.pick({ language: true, title: true }))
+    }),
+    type: postReviewResponseSchema.shape.type
+  })])
 })
+
+export const postHistoryResponseSchema = postHistoryCore
+
+export const postUpdateResponse = postCore.extend({
+  postHistory: postHistoryCore.pick({ id: true, language: true, title: true, createdTimestamp: true })
+})
+
+// Pagination responses
 
 export const postsPaginatedResponseSchema = z.object({
   result: z.array(postResponseSchema),
   cursor
 })
 
-export const postHistoryResponseSchema = postHistoryCore
-
 export const postHistoriesPaginatedResponseSchema = z.object({
   result: z.array(postHistoryResponseSchema.omit({ content: true })),
   cursor
-})
-
-export const postReviewResponseSchema = z.object({
-  id: z.string(),
-  type: ReviewTypes,
-  userId: z.string(),
-  fromPost: z.object({
-    id: z.string(),
-    createdTimestamp: z.date(),
-    postHistory: z.array(postHistoryCore.pick({ content: true, title: true, language: true }))
-  }).optional(),
-  toPostId: z.string()
 })
 
 export const postReviewsPaginatedResponseSchema = z.object({

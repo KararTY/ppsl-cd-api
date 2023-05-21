@@ -45,12 +45,14 @@ export async function allReviewsForPostIdPaginated (prisma, postId, cursor) {
 
 /**
  * @param {PrismaClient} prisma
- * @param {string} postId
+ * @param {string} userId
+ * @param {{ fromPostId?: string, toPostId?: string }}
  */
-export async function reviewByUserIdAndPostId (prisma, userId, postId) {
+export async function reviewByUserIdAndToPostId (prisma, userId, { fromPostId, toPostId }) {
   return prisma.postReview.findFirst({
     where: {
-      toPostId: postId,
+      toPostId,
+      fromPostId,
       userId
     },
     include: {
@@ -64,6 +66,7 @@ export async function reviewByUserIdAndPostId (prisma, userId, postId) {
           },
           postHistory: {
             select: {
+              id: true,
               title: true,
               content: true,
               language: true

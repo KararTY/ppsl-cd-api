@@ -1,7 +1,7 @@
 import { ACTIVE_POSTHISTORY_WHERE } from '../../constants.js'
 
 /**
- * @type {import('../../../.prisma/client).Prisma.PostInclude}
+ * @type {import('../../../.prisma/client').Prisma.PostInclude}
  */
 export const activePostHistoryInclude = {
   postHistory: {
@@ -59,37 +59,23 @@ export async function postWithContentById (prisma, id) {
           isSystem: true
         }
       },
-      postHistory: activePostHistoryInclude.postHistory
-    }
-  })
-}
-
-/**
- * @param {PrismaClient} prisma
- */
-export async function postWithSystemRelationsById (prisma, id) {
-  return await prisma.post.findFirst({
-    where: {
-      id
-    },
-    include: {
-      outRelations: {
+      postHistory: activePostHistoryInclude.postHistory,
+      reviewing: {
         select: {
-          isSystem: true,
-          toPostId: true,
           toPost: {
             select: {
+              id: true,
               postHistory: {
                 select: {
                   title: true,
                   language: true
-                }
+                },
+                where: activePostHistoryInclude.postHistory.where,
+                take: 1
               }
             }
-          }
-        },
-        where: {
-          isSystem: true
+          },
+          type: true
         }
       }
     }

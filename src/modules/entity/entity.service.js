@@ -1,14 +1,14 @@
 import { ACTIVE_POSTHISTORY_WHERE, SYSTEM_IDS } from '../../constants.js'
+import { postRelationDeleteByFromPostId } from '../post/postRelation.service.js'
 
 const { ENTITY } = SYSTEM_IDS
 
 /**
  * Creates post & postHistory & postMetadata
  * @param {PrismaClient} prisma
- * @param {{ title: string, language: string | undefined, content: string }} data
- * @param {string[]} mentions
+ * @param {{ userId: string, data: {title: string, language: string | undefined, content: string}, mentions: string[] }}
  */
-export async function createEntity (prisma, userId, data, mentions) {
+export async function createEntity (prisma, { userId, data, mentions }) {
   const outRelations = mentions.map((mentionPostId) => ({ isSystem: false, toPostId: mentionPostId }))
 
   const { id } = await prisma.post.create({
@@ -58,4 +58,33 @@ export async function createEntity (prisma, userId, data, mentions) {
       language: postHistory.language
     }
   }
+}
+
+/**
+ * @param {PrismaClient} prisma
+ */
+export async function updateEntity (prisma, { post, outRelations, systemRelations }) {
+  await postRelationDeleteByFromPostId(prisma, post.id)
+
+  await prisma.post.update({
+    where: {
+      id: post.id
+    },
+    data: {
+      outRelations: {
+        createMany: {
+          data: [
+            {
+              isSystem: true,
+              toPostId: SYSTEM_IDS.ENTITY
+            },
+            ...systemRelations,
+            ...outRelations
+          ],
+          skipDuplicates: true
+        }
+      },
+      lastUpdated: new Date()
+    }
+  })
 }

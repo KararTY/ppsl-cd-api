@@ -23,7 +23,7 @@ export default async function userRoutes (fastify) {
       },
       description: 'Requires authorization cookie.'
     }
-  }, getAuthenticatedUserSession)
+  }, async (request) => getAuthenticatedUserSession(request))
 
   fastify.post('/', {
     preHandler: [fastify.authenticate],

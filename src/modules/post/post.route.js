@@ -7,10 +7,12 @@ import {
   getAllPostReviews,
   getUserReviewByPostId,
   upsertReview,
-  getPostAuthors
+  getPostAuthors,
+  updatePostById
 } from './post.controller.js'
 import { $ref } from './post.schema.js'
 import { $ref as $refUser } from '../user/user.schema.js'
+import { postExists } from './post.middleware.js'
 
 /**
  * @param {Fastify.Instance} fastify
@@ -45,6 +47,7 @@ export default async function postRoutes (fastify) {
   }, getAllSystemPosts)
 
   fastify.get('/id/:id', {
+    preHandler: [postExists],
     schema: {
       params: $ref('postParamsId'),
       response: {
@@ -53,7 +56,18 @@ export default async function postRoutes (fastify) {
     }
   }, getPostById)
 
+  fastify.post('/id/:id', {
+    preHandler: [fastify.authenticate, postExists],
+    schema: {
+      params: $ref('postParamsId'),
+      response: {
+        200: $ref('')
+      }
+    }
+  }, updatePostById)
+
   fastify.get('/id/:id/history', {
+    preHandler: [postExists],
     schema: {
       querystring: $ref('postPaginationQueries'),
       params: $ref('postParamsId'),
@@ -72,6 +86,7 @@ export default async function postRoutes (fastify) {
   }, createEntityPost)
 
   fastify.get('/id/:id/reviews', {
+    preHandler: [postExists],
     schema: {
       params: $ref('postParamsId'),
       response: {
@@ -81,7 +96,7 @@ export default async function postRoutes (fastify) {
   }, getAllPostReviews)
 
   fastify.get('/id/:id/review', {
-    preHandler: [fastify.authenticate],
+    preHandler: [fastify.authenticate, postExists],
     schema: {
       params: $ref('postParamsId'),
       response: {
@@ -92,7 +107,7 @@ export default async function postRoutes (fastify) {
   }, getUserReviewByPostId)
 
   fastify.post('/id/:id/reviews', {
-    preHandler: [fastify.authenticate],
+    preHandler: [fastify.authenticate, postExists],
     schema: {
       querystring: $ref('postPaginationQueries'),
       params: $ref('postParamsId'),
@@ -102,6 +117,7 @@ export default async function postRoutes (fastify) {
   }, upsertReview)
 
   fastify.get('/id/:id/authors', {
+    preHandler: [postExists],
     schema: {
       params: $ref('postParamsId'),
       response: {

@@ -1,7 +1,6 @@
-import errors from '../../errors.js'
-import { createBio } from '../bio/bio.service.js'
-import { validateBioEditor } from '../lexical/lexical.controller.js'
-import { updatePostLastUpdatedById } from '../post/post.service.js'
+import { NotFound } from '../../errors.js'
+import { updatePostById } from '../post/post.controller.js'
+import { postWithContentById } from '../post/post.service.js'
 
 import { userProfileResponseSchema } from './user.schema.js'
 import { userById } from './user.service.js'
@@ -10,7 +9,7 @@ import { userById } from './user.service.js'
  * @param {Fastify.Request} request
  * @param {Fastify.Reply} reply
  */
-export async function getAuthenticatedUserSession (request) {
+export function getAuthenticatedUserSession (request) {
   return request.session
 }
 
@@ -23,7 +22,7 @@ export async function getUserById (request, reply) {
 
   const res = await userById(request.server.prisma, id)
 
-  if (!res) return reply.status(404).send(errors.FST_ERR_NOT_FOUND())
+  if (!res) return NotFound(reply)
 
   const { email, id: userId, name, image } = res
 
@@ -44,35 +43,13 @@ export async function getUserById (request, reply) {
  * @param {Fastify.Reply} reply
  */
 export async function updateBio (request, reply) {
-  const { language, /* content, */ title } = request.body
-  // Content comes from validateBioEditor.
-
-  const session = await getAuthenticatedUserSession(request)
-
-  const { content: sanitizedContent, valid } = await validateBioEditor(request, reply, true)
-
-  if (!valid) return reply.status(400).send({ message: 'Editor content was invalid.' }) // Content was invalid.
+  const session = getAuthenticatedUserSession(request)
 
   const user = await userById(request.server.prisma, session.user.id)
 
   const postHistoryRaw = user.postsMetadata[0].postHistory
 
-  const postHistory = {
-    id: postHistoryRaw.id,
-    postId: postHistoryRaw.postId
-  }
-
-  /**
-   * Only content, title and langauge, is going to be inserted.
-   * @type {PrismaTypes.PostHistory}
-   */
-  const dataToInsert = {
-    title: title || postHistoryRaw.title || 'Bio',
-    content: JSON.stringify(sanitizedContent),
-    language
-  }
-
-  await updatePostLastUpdatedById(request.server.prisma, postHistory.postId, new Date())
-
-  return await createBio(request.server.prisma, user.id, postHistory, dataToInsert)
+  const post = await postWithContentById(request.server.prisma, postHistoryRaw.postId)
+  request.post = post // updatePostById requires existing post.
+  return await updatePostById(request, reply)
 }

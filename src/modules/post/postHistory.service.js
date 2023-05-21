@@ -1,3 +1,6 @@
+import { ACTIVE_POSTHISTORY_WHERE } from '../../constants.js'
+import { updatePostLastUpdatedById } from './post.service.js'
+
 export const authorThroughMetadataInclude = {
   include: {
     postMetadata: {
@@ -58,4 +61,58 @@ export async function updatePostHistoryEndTimestampByCompoundUniqueId (prisma, p
   })
 
   return endTimestamp
+}
+
+/**
+ * Create postMetadata, & postHistory
+ * @param {PrismaClient} prisma
+ * @param {string} userId
+ * @param {PrismaTypes.PostHistory} data
+ */
+export async function createPostHistory (prisma, userId, data) {
+  return await prisma.postMetadata.create({
+    data: {
+      user: {
+        connect: {
+          id: userId
+        }
+      },
+      postHistory: {
+        create: {
+          ...data
+        }
+      }
+    }
+  }).postHistory({ select: { id: true, title: true, language: true, createdTimestamp: true } })
+}
+
+/**
+ * @param {PrismaClient} prisma
+ * @param {PrismaTypes.PostHistory} data
+ */
+export async function replaceActivePostHistory (prisma, userId, data) {
+  data.endTimestamp = new Date(990821)
+
+  const newPostHistory = await createPostHistory(prisma, userId, data)
+
+  // Add endTimestamp on previous postHistory.
+  await updatePostHistoryEndTimestampByCompoundUniqueId(prisma, {
+    endTimestamp: ACTIVE_POSTHISTORY_WHERE.endTimestamp.equals,
+    language: data.language || 'en',
+    postId: data.postId
+  }, new Date())
+
+  // Enable new postHistory.
+  await prisma.postHistory.update({
+    where: {
+      id: newPostHistory.id
+    },
+    data: {
+      endTimestamp: ACTIVE_POSTHISTORY_WHERE.endTimestamp.equals
+    }
+  })
+
+  await updatePostLastUpdatedById(prisma, data.postId, newPostHistory.createdTimestamp)
+
+  return { id: data.postId, postHistory: newPostHistory }
 }
