@@ -23,16 +23,8 @@ export async function userById (prisma, id) {
             }
           }
         },
-        select: {
-          postHistory: {
-            select: {
-              id: true,
-              title: true,
-              content: true,
-              createdTimestamp: true,
-              postId: true
-            }
-          }
+        include: {
+          postHistory: true
         },
         take: 1
       }

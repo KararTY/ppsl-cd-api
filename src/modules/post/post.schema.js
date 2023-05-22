@@ -48,7 +48,7 @@ export const postMetadataWithPostHistory = postMetadataCore.extend({
 
 export const postHistoryEssentials = z.object({
   title: z.string().optional(),
-  // language: z.string().optional().default('en'),
+  language: z.string().optional().default('en'),
   content: z.string().describe('Encoded by @msgpack/msgpack')
 })
 

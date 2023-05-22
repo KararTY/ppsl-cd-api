@@ -97,9 +97,9 @@ export async function replaceActivePostHistory (prisma, userId, data) {
 
   // Add endTimestamp on previous postHistory.
   await updatePostHistoryEndTimestampByCompoundUniqueId(prisma, {
+    postId: data.postId,
     endTimestamp: ACTIVE_POSTHISTORY_WHERE.endTimestamp.equals,
-    language: data.language || 'en',
-    postId: data.postId
+    language: data.language || 'en'
   }, new Date())
 
   // Enable new postHistory.

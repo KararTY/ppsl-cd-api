@@ -25,7 +25,7 @@ export const userSessionResponseSchema = z.object({
 })
 
 export const userProfileResponseSchema = userCorePublic.extend({
-  bio: postHistoryCore.pick({ title: true, content: true, postId: true, createdTimestamp: true }).optional()
+  bio: postHistoryCore.pick({ title: true, language: true, content: true, postId: true, createdTimestamp: true }).optional()
 })
 
 export const usersOnlyNameAndIdResponseSchema = z.array(userCore.pick({ name: true, id: true }))
