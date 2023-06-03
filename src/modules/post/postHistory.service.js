@@ -116,3 +116,14 @@ export async function replaceActivePostHistory (prisma, userId, data) {
 
   return { id: data.postId, postHistory: newPostHistory }
 }
+
+/**
+ * @param {PrismaClient} prisma
+ */
+export async function postHistoryById (prisma, id) {
+  return await prisma.postHistory.findFirst({
+    where: {
+      id
+    }
+  })
+}

@@ -1,7 +1,11 @@
 import { decode } from '@msgpack/msgpack'
 
-import { bioEditorValidation, entityEditorValidation } from './lexical.service.js'
 import { InvalidEditor } from '../../errors.js'
+
+import toHTML from './ppsl-cd-lexical-shared/src/toHTML/index.js'
+
+import { bioEditorValidation, entityEditorValidation } from './lexical.service.js'
+import { getMiddlewarePostHistory } from '../post/postHistory.controller.js'
 
 /**
  * @param {Fastify.Request} request
@@ -60,4 +64,24 @@ export async function validateEntityEditor (request, reply, internalRequest) {
   }
 
   return { valid: result, error }
+}
+
+/**
+ * @param {Fastify.Request} request
+ * @param {Fastify.Reply} reply
+ */
+export async function lexicalEntityHTMLTransform (request, reply) {
+  const postHistory = getMiddlewarePostHistory(request)
+
+  return await toHTML(postHistory.content, 'entity')
+}
+
+/**
+ * @param {Fastify.Request} request
+ * @param {Fastify.Reply} reply
+ */
+export async function lexicalBioHTMLTransform (request, reply) {
+  const postHistory = getMiddlewarePostHistory(request)
+
+  return await toHTML(postHistory.content, 'bio')
 }
