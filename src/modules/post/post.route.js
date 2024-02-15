@@ -1,6 +1,7 @@
+import { $ref as $refUser } from '../user/user.schema.js'
+
 import {
   getAllSystemPosts,
-  getPostById,
   getAllPosts,
   getPostHistoriesByPostId,
   createEntityPost,
@@ -8,10 +9,10 @@ import {
   getUserReviewByPostId,
   upsertReview,
   getPostAuthors,
-  updatePostById
+  updatePostById,
+  getPostUpdatesAsData
 } from './post.controller.js'
 import { $ref } from './post.schema.js'
-import { $ref as $refUser } from '../user/user.schema.js'
 import { postExists } from './post.middleware.js'
 
 /**
@@ -51,10 +52,10 @@ export default async function postRoutes (fastify) {
     schema: {
       params: $ref('postParamsId'),
       response: {
-        200: $ref('postWithPostHistoryContentAndOutRelationsResponseSchema')
+        200: $ref('getPostByIdResponseSchema')
       }
     }
-  }, getPostById)
+  }, getPostUpdatesAsData)
 
   fastify.post('/id/:id', {
     preHandler: [fastify.authenticate, postExists],

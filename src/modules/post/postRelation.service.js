@@ -9,3 +9,15 @@ export async function postRelationDeleteByFromPostId (prisma, fromPostId) {
     }
   })
 }
+
+/**
+ * @param {PrismaClient} prisma
+ * @param {string} fromPostId
+ */
+export async function postYRelationDeleteByFromPostId (prisma, fromPostId) {
+  return await prisma.yPostRelation.deleteMany({
+    where: {
+      fromPostId
+    }
+  })
+}

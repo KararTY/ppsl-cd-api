@@ -1,9 +1,15 @@
 import { z } from 'zod'
 import { buildJsonSchemas } from 'fastify-zod'
-import { encode } from '@msgpack/msgpack'
 
 export const postCore = z.object({
   id: z.string(),
+  lastUpdated: z.date(),
+  createdTimestamp: z.date()
+})
+
+export const yPostCore = z.object({
+  id: z.string(),
+  language: z.string(),
   lastUpdated: z.date(),
   createdTimestamp: z.date()
 })
@@ -20,14 +26,7 @@ export const postHistoryCore = z.object({
   title: z.string(),
   language: z.string(),
 
-  // Due to transform, this, and anything that uses it, must use this schema on the res object.
-  content: z.string().transform((content) => {
-    try {
-      return encode(JSON.parse(content)).toString()
-    } catch (error) {
-      return content
-    }
-  }).describe('Encoded with @msgpack/msgpack'),
+  content: z.string(),
 
   endTimestamp: z.date(),
   createdTimestamp: z.date(),
@@ -37,6 +36,28 @@ export const postHistoryCore = z.object({
   post: postCore.partial().optional(),
   postId: postCore.shape.id
 })
+
+export const yPostUpdateCore = z.object({
+  id: z.string(),
+  title: z.string(),
+
+  content: z.string(),
+
+  metadataId: z.string(),
+
+  post: yPostCore.partial().optional(),
+  postId: yPostCore.shape.id,
+
+  createdTimestamp: z.date()
+})
+
+const outRelations = z.array(z.object({
+  isSystem: z.boolean(),
+  toPostId: z.string(),
+  toPost: yPostCore.partial().extend({
+    postUpdates: z.array(yPostUpdateCore.pick({ title: true }))
+  })
+}))
 
 export const postHistoryWithPostMetadata = postHistoryCore.extend({
   postMetadata: postMetadataCore
@@ -49,7 +70,7 @@ export const postMetadataWithPostHistory = postMetadataCore.extend({
 export const postHistoryEssentials = z.object({
   title: z.string().optional(),
   language: z.string().optional().default('en'),
-  content: z.string().describe('Encoded by @msgpack/msgpack')
+  content: z.string()
 })
 
 const WhereStringFilters = z.object({
@@ -160,6 +181,16 @@ export const postWithPostHistoryContentAndOutRelationsResponseSchema = postCore.
   })])
 })
 
+export const yPostWithOutRelationsAndLatestYPostUpdate = yPostCore.partial().extend({
+  postUpdates: z.array(yPostUpdateCore.pick({ title: true, id: true, createdTimestamp: true })),
+  outRelations
+})
+
+export const getPostByIdResponseSchema = z.object({
+  post: yPostWithOutRelationsAndLatestYPostUpdate,
+  update: z.string()
+})
+
 export const postHistoryResponseSchema = postHistoryCore
 
 export const postUpdateResponse = postCore.extend({
@@ -195,6 +226,7 @@ export const { schemas: postSchemas, $ref } = buildJsonSchemas({
 
   postResponseSchema,
   postWithPostHistoryContentAndOutRelationsResponseSchema,
+  getPostByIdResponseSchema,
   postReviewResponseSchema,
 
   postParamsId,

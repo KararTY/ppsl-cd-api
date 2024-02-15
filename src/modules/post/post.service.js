@@ -12,6 +12,14 @@ export const activePostHistoryInclude = {
 }
 
 /**
+ * @type {import('../../../.prisma/client').Prisma.YPostInclude}
+ */
+export const activeYPostUpdateInclude = {
+  postUpdates: true,
+  _count: true
+}
+
+/**
  * @param {PrismaClient} prisma
  * @param {import('../../../.prisma/client').Prisma.PostWhereInput} filter
  * @param {import('../../../.prisma/client').Prisma.PostInclude} include
@@ -40,6 +48,7 @@ export async function allPostsPaginated (prisma, cursor, filter) {
 
 /**
  * @param {PrismaClient} prisma
+ * @param {string} id
  */
 export async function postWithContentById (prisma, id) {
   return await prisma.post.findFirst({
@@ -84,6 +93,113 @@ export async function postWithContentById (prisma, id) {
           type: true
         }
       }
+    }
+  })
+}
+
+/**
+ * @param {PrismaClient} prisma
+ * @param {string} id
+ */
+export async function yPostWithContentById (prisma, id) {
+  return await prisma.yPost.findFirst({
+    where: {
+      id
+    },
+    include: {
+      outRelations: {
+        select: {
+          toPost: {
+            select: {
+              language: true,
+              postUpdates: {
+                select: {
+                  title: true
+                },
+                take: 1
+              }
+            }
+          },
+          toPostId: true,
+          isSystem: true
+        }
+      },
+      postUpdates: activeYPostUpdateInclude.postUpdates
+      // reviewing: {
+      //   select: {
+      //     toPost: {
+      //       select: {
+      //         id: true,
+      //         postHistory: {
+      //           select: {
+      //             title: true,
+      //             language: true
+      //           },
+      //           where: activePostHistoryInclude.postHistory.where,
+      //           take: 1
+      //         }
+      //       }
+      //     },
+      //     type: true
+      //   }
+      // }
+    }
+  })
+}
+
+/**
+ * @param {PrismaClient} prisma
+ * @param {string} id
+ */
+export async function yPostWithLatestPostUpdateTitle (prisma, id) {
+  return await prisma.yPost.findFirst({
+    where: {
+      id
+    },
+    include: {
+      outRelations: {
+        select: {
+          toPost: {
+            select: {
+              language: true,
+              postUpdates: {
+                select: {
+                  title: true
+                },
+                take: 1
+              }
+            }
+          },
+          toPostId: true,
+          isSystem: true
+        }
+      },
+      postUpdates: {
+        select: {
+          title: true,
+          id: true,
+          createdTimestamp: true
+        },
+        take: 1
+      }
+      // reviewing: {
+      //   select: {
+      //     toPost: {
+      //       select: {
+      //         id: true,
+      //         postHistory: {
+      //           select: {
+      //             title: true,
+      //             language: true
+      //           },
+      //           where: activePostHistoryInclude.postHistory.where,
+      //           take: 1
+      //         }
+      //       }
+      //     },
+      //     type: true
+      //   }
+      // }
     }
   })
 }

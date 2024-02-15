@@ -1,17 +1,23 @@
 import { FastifyInstance as Instance, FastifyReply as Reply, FastifyRequest as Request } from 'fastify'
 
-import { Post, PostHistory, PostMetadata, PostRelation, User, PostReview, PostReviewTypes } from '../.prisma/client'
+import {
+	User, Post, PostHistory, PostMetadata, PostRelation, PostReview, PostReviewTypes,
+	YFolder, YPost, YPostRelation, YPostUpdate, YPostUpdateMetadata
+} from '../.prisma/client'
 
 declare global {
-  export namespace Fastify {
-    export { Instance, Reply, Request }
-  }
+	export namespace Fastify {
+		export { Instance, Reply, Request }
+	}
 }
 
 declare global {
-  export type PrismaClient = import('../.prisma/client').PrismaClient
+	export type PrismaClient = import('../.prisma/client').PrismaClient
 
-  export namespace PrismaTypes {
-    export { Post, PostHistory, PostMetadata, PostRelation, User, PostReview, PostReviewTypes }
-  }
+	export namespace PrismaTypes {
+		export {
+			User, Post, PostHistory, PostMetadata, PostRelation, PostReview, PostReviewTypes,
+			YFolder, YPost, YPostRelation, YPostUpdate, YPostUpdateMetadata
+		}
+	}
 }

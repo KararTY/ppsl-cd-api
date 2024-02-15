@@ -9,5 +9,6 @@
   "standard.autoFixOnSave": true,
   "standard.validate": ["javascript"],
   "javascript.validate.enable": false,
-  "eslint.enable": false
+  "eslint.enable": false,
+  "javascript.format.enable": false
 }
