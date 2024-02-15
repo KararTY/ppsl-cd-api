@@ -139,7 +139,7 @@ export async function entityEditorValidation (stringifiedJSON) {
   try {
     const entityEditor = await validateEntityEditor(stringifiedJSON)
     const res = JSON.stringify(entityEditor.getEditorState().toJSON())
-    return { result: stringifiedJSON === res }
+    return { result: stringifiedJSON === res, error: null }
   } catch (error) {
     return { result: false, error: error.message }
   }

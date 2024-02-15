@@ -1,5 +1,7 @@
-import { SYSTEM_IDS } from '../../constants.js'
+import { SYSTEM_IDS } from '../lexical/ppsl-cd-lexical-shared/src/editors/constants.js'
 import { postRelationDeleteByFromPostId } from '../post/postRelation.service.js'
+
+const { REVIEW } = SYSTEM_IDS
 
 /**
  * @param {PrismaClient} prisma
@@ -12,7 +14,7 @@ export async function createReview (prisma, { userId, type, toPostId, outRelatio
           data: [
             {
               isSystem: true,
-              toPostId: SYSTEM_IDS.REVIEW
+              toPostId: REVIEW
             },
             ...outRelations
           ],
@@ -71,7 +73,7 @@ export async function updateReview (prisma, { review, postId, type, outRelations
           data: [
             {
               isSystem: true,
-              toPostId: SYSTEM_IDS.REVIEW
+              toPostId: REVIEW
             },
             ...systemRelations,
             ...outRelations

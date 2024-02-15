@@ -53,7 +53,8 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  postsMetadata PostMetadata[]
+  postsMetadata        PostMetadata[]
+  yPostUpdatesMetadata YPostUpdateMetadata[]
 
   createdTimestamp DateTime @default(now())
 
@@ -142,6 +143,66 @@ model PostReview {
   fromPost   Post?   @relation("fromPost", fields: [fromPostId], references: [id], onDelete: Cascade)
   fromPostId String? @unique
 
-  toPost   Post  @relation("toPost", fields: [toPostId], references: [id], onDelete: Cascade)
+  toPost   Post   @relation("toPost", fields: [toPostId], references: [id], onDelete: Cascade)
   toPostId String
+}
+
+// Yjs
+
+model YFolder {
+  id String @id @default(cuid())
+
+  posts YPost[]
+}
+
+model YPost {
+  id String @id @default(cuid())
+
+  language String @default("en")
+
+  yFolder   YFolder @relation(fields: [yFolderId], references: [id], onDelete: Cascade)
+  yFolderId String
+
+  inRelations  YPostRelation[] @relation("toPost") /// Used for relations to (Manual - By script).
+  outRelations YPostRelation[] @relation("fromPost") /// Used for relations from (Has been applied to).
+
+  postUpdates YPostUpdate[]
+
+  lastUpdated      DateTime @default(now())
+  createdTimestamp DateTime @default(now())
+}
+
+model YPostRelation {
+  isSystem Boolean
+
+  fromPost   YPost  @relation("fromPost", fields: [fromPostId], references: [id], onDelete: Cascade)
+  fromPostId String
+  toPost     YPost  @relation("toPost", fields: [toPostId], references: [id], onDelete: Cascade)
+  toPostId   String
+
+  @@id([fromPostId, toPostId])
+}
+
+model YPostUpdate {
+  id String @id @default(cuid())
+
+  title   String
+  content String @db.Text
+
+  post   YPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId String
+
+  metadata   YPostUpdateMetadata @relation(fields: [metadataId], references: [id], onDelete: Cascade)
+  metadataId String              @unique
+
+  createdTimestamp DateTime @default(now())
+}
+
+model YPostUpdateMetadata {
+  id String @id @default(cuid())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  postUpdate YPostUpdate?
 }

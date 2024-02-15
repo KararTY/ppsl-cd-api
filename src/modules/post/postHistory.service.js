@@ -1,4 +1,5 @@
 import { ACTIVE_POSTHISTORY_WHERE } from '../../constants.js'
+
 import { updatePostLastUpdatedById } from './post.service.js'
 
 export const authorThroughMetadataInclude = {
@@ -87,6 +88,29 @@ export async function createPostHistory (prisma, userId, data) {
 }
 
 /**
+ * Create YPostUpdateMetadata, & YPostUpdate
+ * @param {PrismaClient} prisma
+ * @param {string} userId
+ * @param {PrismaTypes.YPostUpdate} data
+ */
+export async function createYPostUpdate (prisma, userId, data) {
+  return await prisma.yPostUpdateMetadata.create({
+    data: {
+      user: {
+        connect: {
+          id: userId
+        }
+      },
+      postUpdate: {
+        create: {
+          ...data
+        }
+      }
+    }
+  }).postUpdate({ select: { id: true, title: true, createdTimestamp: true, postId: true } })
+}
+
+/**
  * @param {PrismaClient} prisma
  * @param {PrismaTypes.PostHistory} data
  */
@@ -124,6 +148,41 @@ export async function postHistoryById (prisma, id) {
   return await prisma.postHistory.findFirst({
     where: {
       id
+    }
+  })
+}
+
+/**
+ * @param {PrismaClient} prisma
+ */
+export async function postWithPostUpdatesByPostId (prisma, postId) {
+  return await prisma.yPost.findFirst({
+    where: {
+      id: postId
+    },
+    include: {
+      outRelations: {
+        select: {
+          isSystem: true,
+          toPost: {
+            select: {
+              postUpdates: {
+                select: {
+                  title: true,
+                  id: true
+                },
+                take: 1
+              }
+            }
+          },
+          toPostId: true
+        }
+      },
+      postUpdates: {
+        select: {
+          content: true
+        }
+      }
     }
   })
 }

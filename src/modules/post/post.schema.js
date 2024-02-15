@@ -7,6 +7,13 @@ export const postCore = z.object({
   createdTimestamp: z.date()
 })
 
+export const yPostCore = z.object({
+  id: z.string(),
+  language: z.string(),
+  lastUpdated: z.date(),
+  createdTimestamp: z.date()
+})
+
 export const postMetadataCore = z.object({
   id: z.string(),
 
@@ -29,6 +36,28 @@ export const postHistoryCore = z.object({
   post: postCore.partial().optional(),
   postId: postCore.shape.id
 })
+
+export const yPostUpdateCore = z.object({
+  id: z.string(),
+  title: z.string(),
+
+  content: z.string(),
+
+  metadataId: z.string(),
+
+  post: yPostCore.partial().optional(),
+  postId: yPostCore.shape.id,
+
+  createdTimestamp: z.date()
+})
+
+const outRelations = z.array(z.object({
+  isSystem: z.boolean(),
+  toPostId: z.string(),
+  toPost: yPostCore.partial().extend({
+    postUpdates: z.array(yPostUpdateCore.pick({ title: true }))
+  })
+}))
 
 export const postHistoryWithPostMetadata = postHistoryCore.extend({
   postMetadata: postMetadataCore
@@ -152,6 +181,16 @@ export const postWithPostHistoryContentAndOutRelationsResponseSchema = postCore.
   })])
 })
 
+export const yPostWithOutRelationsAndLatestYPostUpdate = yPostCore.partial().extend({
+  postUpdates: z.array(yPostUpdateCore.pick({ title: true, id: true, createdTimestamp: true })),
+  outRelations
+})
+
+export const getPostByIdResponseSchema = z.object({
+  post: yPostWithOutRelationsAndLatestYPostUpdate,
+  update: z.string()
+})
+
 export const postHistoryResponseSchema = postHistoryCore
 
 export const postUpdateResponse = postCore.extend({
@@ -187,6 +226,7 @@ export const { schemas: postSchemas, $ref } = buildJsonSchemas({
 
   postResponseSchema,
   postWithPostHistoryContentAndOutRelationsResponseSchema,
+  getPostByIdResponseSchema,
   postReviewResponseSchema,
 
   postParamsId,
