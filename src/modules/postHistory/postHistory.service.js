@@ -1,6 +1,6 @@
 import { ACTIVE_POSTHISTORY_WHERE } from '../../constants.js'
 
-import { updatePostLastUpdatedById } from './post.service.js'
+import { updatePostLastUpdatedById } from '../post/post.service.js'
 
 export const authorThroughMetadataInclude = {
   include: {
@@ -19,8 +19,8 @@ export const authorThroughMetadataInclude = {
 
 /**
  * @param {PrismaClient} prisma
- * @param {import('../../../.prisma/client').Prisma.PostHistoryWhereInput} filter
- * @param {import('../../../.prisma/client').Prisma.PostHistoryInclude} include
+ * @param {import('../../../.prisma/client/index.js').Prisma.PostHistoryWhereInput} filter
+ * @param {import('../../../.prisma/client/index.js').Prisma.PostHistoryInclude} include
  */
 export async function allPostHistoriesPaginated (prisma, cursor, filter) {
   return await prisma.postHistory.findMany({
@@ -49,7 +49,7 @@ export async function allPostHistoriesPaginated (prisma, cursor, filter) {
 
 /**
  * @param {PrismaClient} prisma
- * @param {import('../../../.prisma/client').Prisma.PostHistoryPostIdLanguageEndTimestampCompoundUniqueInput} postIdLanguageEndTimestamp
+ * @param {import('../../../.prisma/client/index.js').Prisma.PostHistoryPostIdLanguageEndTimestampCompoundUniqueInput} postIdLanguageEndTimestamp
  */
 export async function updatePostHistoryEndTimestampByCompoundUniqueId (prisma, postIdLanguageEndTimestamp, newEndTimestamp) {
   const { endTimestamp } = await prisma.postHistory.update({

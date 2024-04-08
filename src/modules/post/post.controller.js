@@ -14,8 +14,8 @@ import { getEntityMentions } from '../lexical/lexical.service.js'
 import { getSystemYPostRelations, userHasPermissionWriteForYPostByPostUpdate } from '../permission/permission.service.js'
 
 import { allPostsPaginated, postWithContentById } from './post.service.js'
-import { allPostHistoriesPaginated, createPostHistory, createYPostUpdate, postWithPostUpdatesByPostId, replaceActivePostHistory } from './postHistory.service.js'
-import { allReviewsForPostIdPaginated, reviewByUserIdAndToPostId } from './postReview.service.js'
+import { allPostHistoriesPaginated, createPostHistory, createYPostUpdate, postWithPostUpdatesByPostId, replaceActivePostHistory } from '../postHistory/postHistory.service.js'
+import { allReviewsForPostIdPaginated, reviewByUserIdAndToPostId } from '../postReview/postReview.service.js'
 import { getMiddlewarePost } from './post.middleware.js'
 import { mergePostUpdates, postUpdatesToUint8Arr, uint8ArrayToString } from '../lexical/yjs.js'
 

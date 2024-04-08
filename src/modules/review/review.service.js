@@ -1,5 +1,5 @@
 import { SYSTEM_IDS } from '../lexical/ppsl-cd-lexical-shared/src/editors/constants.js'
-import { postRelationDeleteByFromPostId } from '../post/postRelation.service.js'
+import { postRelationDeleteByFromPostId } from '../postRelation/postRelation.service.js'
 
 const { REVIEW } = SYSTEM_IDS
 

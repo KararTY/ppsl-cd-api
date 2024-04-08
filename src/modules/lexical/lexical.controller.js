@@ -1,6 +1,6 @@
 import { InvalidEditor } from '../../errors.js'
 
-import { postWithPostUpdatesByPostId } from '../post/postHistory.service.js'
+import { postWithPostUpdatesByPostId } from '../postHistory/postHistory.service.js'
 
 import { entityConfig } from './ppsl-cd-lexical-shared/src/editors/Entity/config.js'
 import { bioConfig } from './ppsl-cd-lexical-shared/src/editors/Bio/config.js'
