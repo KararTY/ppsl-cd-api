@@ -1,5 +1,4 @@
 import { ACTIVE_POSTHISTORY_WHERE } from '../../constants.js'
-
 import { updatePostLastUpdatedById } from '../post/post.service.js'
 
 export const authorThroughMetadataInclude = {
