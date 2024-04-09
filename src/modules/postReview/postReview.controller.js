@@ -1,16 +1,44 @@
-import { ACTIVE_POSTHISTORY_WHERE } from '../../constants'
-import { InvalidEditor, MissingTitle, NotFound } from '../../errors'
-import { validateBioEditor } from '../lexical/lexical.controller'
-import { getEntityMentions } from '../lexical/lexical.service'
-import { SYSTEM_IDS } from '../lexical/ppsl-cd-lexical-shared/src/editors/constants'
-import { updatePostById } from '../post/post.controller'
-import { postWithContentById } from '../post/post.service'
-import { createPostHistory } from '../postHistory/postHistory.service'
-import { createReview } from '../review/review.service'
-import { getAuthenticatedUserSession } from '../user/user.controller'
-import { allReviewsForPostIdPaginated, reviewByUserIdAndToPostId } from './postReview.service'
+import { ACTIVE_POSTHISTORY_WHERE } from '../../constants.js'
+import { InvalidEditor, MissingTitle, NotFound } from '../../errors.js'
+import { validateBioEditor } from '../lexical/lexical.controller.js'
+import { getEntityMentions } from '../lexical/lexical.service.js'
+import { SYSTEM_IDS } from '../lexical/ppsl-cd-lexical-shared/src/editors/constants.js'
+import { updatePostById } from '../post/post.controller.js'
+import { postWithContentById } from '../post/post.service.js'
+import { createPostHistory, replaceActivePostHistory } from '../postHistory/postHistory.service.js'
+import { createReview, updateReview, allReviewsForPostIdPaginated, reviewByUserIdAndToPostId } from '../postReview/postReview.service.js'
+import { getAuthenticatedUserSession } from '../user/user.controller.js'
 
 const { ENTITY } = SYSTEM_IDS
+
+export async function updateReviewPost (request, { post, outRelations, title, transformedSystemRelations, language, stringifiedContent }) {
+  const prisma = request.server.prisma
+
+  const session = getAuthenticatedUserSession(request)
+  const { type } = request.body
+
+  const postReview = request.postReview || await reviewByUserIdAndToPostId(prisma, session.user.id, { fromPostId: post.id })
+
+  await updateReview(prisma, {
+    review: postReview,
+    postId: post.id,
+    type,
+    outRelations,
+    systemRelations: transformedSystemRelations
+  })
+
+  /**
+     * @type {PrismaTypes.PostHistory}
+     */
+  const dataToInsert = {
+    title,
+    language,
+    content: stringifiedContent,
+    postId: post.id
+  }
+
+  return await replaceActivePostHistory(request.server.prisma, session.user.id, dataToInsert)
+}
 
 /**
  * @param {Fastify.Request} request
@@ -40,6 +68,7 @@ export async function upsertReview (request, reply) {
     const { language, /* content, */ title } = request.body
     // Content comes from validateReviewEditor.
 
+    // TODO: Put this validation into a Zod schema.
     if (!title || title.length === 0) return MissingTitle(reply)
 
     // TODO: Create validateReviewEditor

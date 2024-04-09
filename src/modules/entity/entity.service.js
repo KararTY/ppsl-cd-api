@@ -1,5 +1,5 @@
 import { SYSTEM_IDS } from '../lexical/ppsl-cd-lexical-shared/src/editors/constants.js'
-import { postRelationDeleteByFromPostId, postYRelationDeleteByFromPostId } from '../postRelation/postRelation.service.js'
+import { postYRelationDeleteByFromPostId } from '../postRelation/postRelation.service.js'
 
 const { ENTITY } = SYSTEM_IDS
 
@@ -73,35 +73,6 @@ export async function createYEntity (prisma, { userId, language, data, mentions 
       title: postUpdate.title
     }
   }
-}
-
-/**
- * @param {PrismaClient} prisma
- */
-export async function updateEntity (prisma, { post, outRelations, systemRelations }) {
-  await postRelationDeleteByFromPostId(prisma, post.id)
-
-  await prisma.post.update({
-    where: {
-      id: post.id
-    },
-    data: {
-      outRelations: {
-        createMany: {
-          data: [
-            {
-              isSystem: true,
-              toPostId: SYSTEM_IDS.ENTITY
-            },
-            ...systemRelations,
-            ...outRelations
-          ],
-          skipDuplicates: true
-        }
-      },
-      lastUpdated: new Date()
-    }
-  })
 }
 
 /**
