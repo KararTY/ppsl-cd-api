@@ -102,9 +102,9 @@ export async function userAuthorByYPostUpdateId (prisma, postUpdateId) {
 export async function postAuthors (prisma, id) {
   return await prisma.user.findMany({
     where: {
-      postsMetadata: {
+      yPostUpdatesMetadata: {
         some: {
-          postHistory: {
+          postUpdate: {
             postId: id
           }
         }

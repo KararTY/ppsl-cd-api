@@ -14,7 +14,7 @@ export async function postExists (request, reply) {
 /**
  * **Only usable when route has the postExists middleware.**
  * @param {Fastify.Request} request
- * @returns {Awaited<ReturnType<import('./post.service.js').yPostWithContentById>>}
+ * @returns {Awaited<ReturnType<import('./post.service.js').yPostWithLatestPostUpdateTitle>>}
  */
 export function getMiddlewarePost (request) {
   return request.post

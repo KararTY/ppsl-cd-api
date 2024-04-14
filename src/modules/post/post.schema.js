@@ -165,6 +165,14 @@ export const postResponseSchema = postCore.partial().extend({
   }))
 })
 
+export const yPostResponseSchema = postCore.partial().extend({
+  postUpdates: z.array(postHistoryCore.pick({
+    title: true,
+    createdTimestamp: true
+  })),
+  language: z.string()
+})
+
 export const postWithPostHistoryContentAndOutRelationsResponseSchema = postCore.partial().extend({
   postHistory: z.array(postHistoryCore),
   outRelations: z.array(z.object({
@@ -200,7 +208,7 @@ export const postUpdateResponse = postCore.extend({
 // Pagination responses
 
 export const postsPaginatedResponseSchema = z.object({
-  result: z.array(postResponseSchema),
+  result: z.array(yPostResponseSchema),
   cursor,
   count: z.number()
 })

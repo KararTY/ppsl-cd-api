@@ -145,6 +145,10 @@ export async function entityEditorValidation (stringifiedJSON) {
   }
 }
 
+/**
+ * @param {string} stringifiedJSON
+ * @returns {Promise<string[]>}
+ */
 function entityMentions (stringifiedJSON) {
   return new Promise((resolve, reject) => {
     const config = entityConfig({}, undefined, (error) => {
@@ -167,6 +171,9 @@ function entityMentions (stringifiedJSON) {
   })
 }
 
+/**
+ * @param {string} stringifiedJSON
+ */
 export async function getEntityMentions (stringifiedJSON) {
   return await entityMentions(stringifiedJSON)
 }

@@ -3697,6 +3697,7 @@ __metadata:
     rimraf: "npm:^5.0.5"
     standard: "npm:^17.1.0"
     typescript: "npm:^5.3.3"
+    uint8array-extras: "npm:^1.1.0"
     yjs: "npm:>=13.5.22"
     zod: "npm:^3.22.4"
   languageName: unknown
@@ -4577,6 +4578,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"uint8array-extras@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "uint8array-extras@npm:1.1.0"
+  checksum: 8f5d7df2da4a0e4ee82b5ba77f270bc4cbd6909a5fabf34f65401d2612fa52fc87db4db0d002650e52594698ffb5414df953fd08deaaae5e578d42e68d9654cd
+  languageName: node
+  linkType: hard
+
 "unbox-primitive@npm:^1.0.2":
   version: 1.0.2
   resolution: "unbox-primitive@npm:1.0.2"
@@ -4750,11 +4758,11 @@ __metadata:
   linkType: hard
 
 "yjs@npm:>=13.5.22":
-  version: 13.6.12
-  resolution: "yjs@npm:13.6.12"
+  version: 13.6.14
+  resolution: "yjs@npm:13.6.14"
   dependencies:
     lib0: "npm:^0.2.86"
-  checksum: 11f8daddb28e088d16c175044496a95af30a9a730fc441eb1c62813fb1c815d1b0f92c4a5d3669386dc89f57a126b23a190377249cfd8bba1a4cf44bc8f86a00
+  checksum: aa277393aea2524bf80d014b570a2949a6fe930fb9809dbdb38c04fe6086385f3abba8daf4cce2ddfa421c2f8c450c7beede9972106dece405071e0dc5664a11
   languageName: node
   linkType: hard
 

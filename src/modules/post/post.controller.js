@@ -1,3 +1,4 @@
+import { uint8ArrayToBase64 } from 'uint8array-extras'
 import { InvalidEditor, MissingTitle, NoPermissions, NoValidationAvailable, NotFound } from '../../errors.js'
 import { createYEntity } from '../entity/entity.service.js'
 import { getAuthenticatedUserSession } from '../user/user.controller.js'
@@ -6,10 +7,10 @@ import { SYSTEM_IDS } from '../lexical/ppsl-cd-lexical-shared/src/editors/consta
 import { validateEditor, validateEntityEditor } from '../lexical/lexical.controller.js'
 import { getEntityMentions } from '../lexical/lexical.service.js'
 import { getSystemYPostRelations, userHasPermissionWriteForYPostByPostUpdate } from '../permission/permission.service.js'
-import { allPostsPaginated } from './post.service.js'
+import { allYPostsPaginated } from './post.service.js'
 import { postWithPostUpdatesByPostId, replaceActivePostHistory } from '../postHistory/postHistory.service.js'
 import { getMiddlewarePost } from './post.middleware.js'
-import { mergePostUpdates, postUpdatesToUint8Arr, uint8ArrayToString } from '../lexical/yjs.js'
+import { mergePostUpdates, postUpdatesToUint8Arr } from '../lexical/yjs.js'
 import { updateReviewPost } from '../postReview/postReview.controller.js'
 import { updateEntityPost } from '../entity/entity.controller.js'
 
@@ -46,7 +47,7 @@ export async function getAllPosts (request, reply) {
     }
   }
 
-  const { posts, count } = await allPostsPaginated(request.server.prisma, cursor, filter)
+  const { posts, count } = await allYPostsPaginated(request.server.prisma, cursor, filter)
 
   if (posts.length === 0) {
     return {
@@ -69,7 +70,7 @@ export async function getAllPosts (request, reply) {
  */
 export async function getAllSystemPosts (request, reply) {
   const { cursor } = request.query
-  const { posts, count } = await allPostsPaginated(request.server.prisma, cursor, {
+  const { posts, count } = await allYPostsPaginated(request.server.prisma, cursor, {
     outRelations: {
       some: {
         toPostId: SYSTEM
@@ -99,7 +100,9 @@ export async function getAllSystemPosts (request, reply) {
 export async function getPostUpdatesAsData (request, reply) {
   const post = await postWithPostUpdatesByPostId(request.server.prisma, request.params.id)
 
-  const update = uint8ArrayToString(mergePostUpdates(postUpdatesToUint8Arr(post.postUpdates)))
+  const uint8Array = postUpdatesToUint8Arr(post.postUpdates)
+  const mergedUpdates = mergePostUpdates(uint8Array)
+  const update = uint8ArrayToBase64(mergedUpdates)
 
   post.postUpdates = request.post.postUpdates
 

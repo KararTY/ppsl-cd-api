@@ -1,3 +1,5 @@
+import { base64ToUint8Array } from 'uint8array-extras'
+
 import { InvalidEditor } from '../../errors.js'
 
 import { postWithPostUpdatesByPostId } from '../postHistory/postHistory.service.js'
@@ -67,7 +69,7 @@ export async function validateEntityEditor (request, reply, internalRequest) {
 
   let content
   try {
-    content = updateToJSON(entityConfig({}, null), new Uint8Array(atob(body.content).split(',')))
+    content = updateToJSON(entityConfig({}, null), base64ToUint8Array(body.content))
 
     // get existing data for document (and then run Y.mergeUpdatesV2 or forEach update applyUpdateV2)
     // Y.applyUpdateV2(content, new Uint8Array(atob(body.content).split(',')))
@@ -99,7 +101,7 @@ export async function validateEditor ({ type, update }, reply) {
 
   let parsedUpdate
   if (typeof update === 'string') {
-    parsedUpdate = new Uint8Array(atob(update).split(','))
+    parsedUpdate = base64ToUint8Array(update)
   } else {
     parsedUpdate = update
   }

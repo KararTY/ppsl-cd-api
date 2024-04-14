@@ -48,6 +48,31 @@ export async function allPostsPaginated (prisma, cursor, filter) {
 
 /**
  * @param {PrismaClient} prisma
+ */
+export async function allYPostsPaginated (prisma, cursor, filter) {
+  const [posts, count] = await prisma.$transaction([
+    prisma.yPost.findMany({
+      take: 50,
+      skip: cursor ? 1 : undefined,
+      cursor: cursor
+        ? {
+            id: cursor
+          }
+        : undefined,
+      where: filter,
+      include: activeYPostUpdateInclude,
+      orderBy: {
+        lastUpdated: 'desc'
+      }
+    }),
+    prisma.yPost.count({ where: filter })
+  ])
+
+  return { posts, count }
+}
+
+/**
+ * @param {PrismaClient} prisma
  * @param {string} id
  */
 export async function postWithContentById (prisma, id) {

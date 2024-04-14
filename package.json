@@ -36,6 +36,7 @@
     "lexical": "^0.13.1",
     "linkedom": "^0.16.8",
     "linkedom-global": "^1.0.0",
+    "uint8array-extras": "^1.1.0",
     "yjs": ">=13.5.22",
     "zod": "^3.22.4"
   },

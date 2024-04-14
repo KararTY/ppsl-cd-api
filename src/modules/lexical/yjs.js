@@ -1,3 +1,4 @@
+import { base64ToUint8Array } from 'uint8array-extras'
 import yjs from './yjs.cjs'
 import lexicalHeadless from '@lexical/headless'
 import lexicalYjs from '@lexical/yjs/LexicalYjs.js'
@@ -43,19 +44,11 @@ export function updateToJSON (config, update) {
   return editor.toJSON().editorState
 }
 
-export function uint8ArrayToString (uint8Array) {
-  return btoa(uint8Array)
-}
-
-export function stringToUint8Array (base64uint8Array) {
-  return new Uint8Array(atob(base64uint8Array).split(','))
-}
-
 /**
  * @param {Array<PrismaTypes.YPostUpdate>} postUpdates
  */
 export function postUpdatesToUint8Arr (postUpdates) {
-  return postUpdates.map(({ content }) => stringToUint8Array(content))
+  return postUpdates.map(({ content }) => base64ToUint8Array(content))
 }
 
 /**
