@@ -81,6 +81,9 @@ async function setup () {
   }
 
   fastify.log.info('%s@%s ONLINE', packageJSON.name, packageJSON.version)
+
+  const { address, port } = fastify.server.address()
+  fastify.log.info('Swagger at http://%s:%s/swagger', address, port)
 }
 
 setup()

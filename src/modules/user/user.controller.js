@@ -2,7 +2,6 @@ import { NotFound } from '../../errors.js'
 import { updatePostById } from '../post/post.controller.js'
 import { postWithContentById } from '../post/post.service.js'
 
-import { userProfileResponseSchema } from './user.schema.js'
 import { userById } from './user.service.js'
 
 /**
@@ -35,7 +34,7 @@ export async function getUserById (request, reply) {
   }
 
   // Has transforms to content.
-  return userProfileResponseSchema.parse(cherryPickedData)
+  return cherryPickedData
 }
 
 /**

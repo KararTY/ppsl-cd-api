@@ -1,4 +1,8 @@
-import { ACTIVE_POSTHISTORY_WHERE, SYSTEM_IDS } from '../../constants.js'
+import { ACTIVE_POSTHISTORY_WHERE } from '../../constants.js'
+
+import { SYSTEM_IDS } from '../lexical/ppsl-cd-lexical-shared/src/editors/constants.js'
+
+const { BIO } = SYSTEM_IDS
 
 /**
  * @param {PrismaClient} prisma
@@ -17,7 +21,7 @@ export async function userById (prisma, id) {
               outRelations: {
                 some: {
                   isSystem: true,
-                  toPostId: SYSTEM_IDS.BIO
+                  toPostId: BIO
                 }
               }
             }
@@ -59,14 +63,15 @@ export async function userById (prisma, id) {
 
 /**
  * @param {PrismaClient} prisma
+ * @param {string} postUpdateId
  */
-export async function userAuthorByPostHistoryId (prisma, postHistoryId) {
-  return await prisma.user.findFirst({
+export async function userAuthorByYPostUpdateId (prisma, postUpdateId) {
+  return prisma.user.findFirst({
     where: {
-      postsMetadata: {
+      postUpdatesMetadata: {
         some: {
-          postHistory: {
-            id: postHistoryId
+          postUpdate: {
+            id: postUpdateId
           }
         }
       }
@@ -78,11 +83,11 @@ export async function userAuthorByPostHistoryId (prisma, postHistoryId) {
  * @param {PrismaClient} prisma
  */
 export async function postAuthors (prisma, id) {
-  return await prisma.user.findMany({
+  return prisma.user.findMany({
     where: {
-      postsMetadata: {
+      postUpdatesMetadata: {
         some: {
-          postHistory: {
+          postUpdate: {
             postId: id
           }
         }

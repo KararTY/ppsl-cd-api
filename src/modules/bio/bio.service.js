@@ -1,4 +1,7 @@
-import { ACTIVE_POSTHISTORY_WHERE, SYSTEM_IDS } from '../../constants.js'
+import { ACTIVE_POSTHISTORY_WHERE } from '../../constants.js'
+import { SYSTEM_IDS } from '../lexical/ppsl-cd-lexical-shared/src/editors/constants.js'
+
+const { BIO } = SYSTEM_IDS
 
 /**
  * @param {PrismaClient} prisma
@@ -12,7 +15,7 @@ export async function createDefaultBioPost (prisma, user) {
           isSystem: true,
           toPost: {
             connect: {
-              id: SYSTEM_IDS.BIO
+              id: BIO
             }
           }
         }

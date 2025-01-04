@@ -1,12 +1,10 @@
 import fp from 'fastify-plugin'
-import { PrismaClient } from '../../../.prisma/client/index.js' // Generated with prisma:generate
+import { prisma } from './prisma.js'
 
 /**
  * @type {import('fastify').FastifyPluginAsync} Prisma Fastify Plugin
  */
 const prismaPlugin = fp(async (fastify, _) => {
-  const prisma = new PrismaClient()
-
   await prisma.$connect()
   fastify.log.info('Prisma connected.')
 

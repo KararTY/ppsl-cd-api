@@ -1,17 +1,13 @@
+import { $ref as $refUser } from '../user/user.schema.js'
 import {
   getAllSystemPosts,
-  getPostById,
   getAllPosts,
-  getPostHistoriesByPostId,
   createEntityPost,
-  getAllPostReviews,
-  getUserReviewByPostId,
-  upsertReview,
   getPostAuthors,
-  updatePostById
+  updatePostById,
+  getPostUpdatesAsData
 } from './post.controller.js'
 import { $ref } from './post.schema.js'
-import { $ref as $refUser } from '../user/user.schema.js'
 import { postExists } from './post.middleware.js'
 
 /**
@@ -51,10 +47,10 @@ export default async function postRoutes (fastify) {
     schema: {
       params: $ref('postParamsId'),
       response: {
-        200: $ref('postWithPostHistoryContentAndOutRelationsResponseSchema')
+        200: $ref('getPostByIdResponseSchema')
       }
     }
-  }, getPostById)
+  }, getPostUpdatesAsData)
 
   fastify.post('/id/:id', {
     preHandler: [fastify.authenticate, postExists],
@@ -66,17 +62,6 @@ export default async function postRoutes (fastify) {
     }
   }, updatePostById)
 
-  fastify.get('/id/:id/history', {
-    preHandler: [postExists],
-    schema: {
-      querystring: $ref('postPaginationQueries'),
-      params: $ref('postParamsId'),
-      response: {
-        200: $ref('postHistoriesPaginatedResponseSchema')
-      }
-    }
-  }, getPostHistoriesByPostId)
-
   fastify.post('/', {
     preHandler: [fastify.authenticate],
     schema: {
@@ -84,37 +69,6 @@ export default async function postRoutes (fastify) {
       description: 'Requires authorization cookie.'
     }
   }, createEntityPost)
-
-  fastify.get('/id/:id/reviews', {
-    preHandler: [postExists],
-    schema: {
-      params: $ref('postParamsId'),
-      response: {
-        200: $ref('postReviewsPaginatedResponseSchema')
-      }
-    }
-  }, getAllPostReviews)
-
-  fastify.get('/id/:id/review', {
-    preHandler: [fastify.authenticate, postExists],
-    schema: {
-      params: $ref('postParamsId'),
-      response: {
-        200: $ref('postReviewResponseSchema')
-      },
-      description: 'Requires authorization cookie.'
-    }
-  }, getUserReviewByPostId)
-
-  fastify.post('/id/:id/reviews', {
-    preHandler: [fastify.authenticate, postExists],
-    schema: {
-      querystring: $ref('postPaginationQueries'),
-      params: $ref('postParamsId'),
-      body: $ref('postReviewAddRequestSchema'),
-      description: 'Requires authorization cookie.'
-    }
-  }, upsertReview)
 
   fastify.get('/id/:id/authors', {
     preHandler: [postExists],

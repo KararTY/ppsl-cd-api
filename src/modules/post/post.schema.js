@@ -1,10 +1,12 @@
 import { z } from 'zod'
 import { buildJsonSchemas } from 'fastify-zod'
-import { encode } from '@msgpack/msgpack'
+import { SYSTEM_IDS } from '../lexical/ppsl-cd-lexical-shared/src/editors/constants'
 
-export const postCore = z.object({
+const { ENTITY, REVIEW, BIO } = SYSTEM_IDS
+
+export const yPostCore = z.object({
   id: z.string(),
-  lastUpdated: z.date(),
+  language: z.string(),
   createdTimestamp: z.date()
 })
 
@@ -14,42 +16,34 @@ export const postMetadataCore = z.object({
   userId: z.string()
 })
 
-export const postHistoryCore = z.object({
+export const yPostUpdateCore = z.object({
   id: z.string(),
-
   title: z.string(),
-  language: z.string(),
 
-  // Due to transform, this, and anything that uses it, must use this schema on the res object.
-  content: z.string().transform((content) => {
-    try {
-      return encode(JSON.parse(content)).toString()
-    } catch (error) {
-      return content
-    }
-  }).describe('Encoded with @msgpack/msgpack'),
+  content: z.string(),
 
-  endTimestamp: z.date(),
-  createdTimestamp: z.date(),
+  metadataId: z.string(),
 
-  postMetadataId: z.string(),
+  post: yPostCore.partial().optional(),
+  postId: yPostCore.shape.id,
 
-  post: postCore.partial().optional(),
-  postId: postCore.shape.id
+  createdTimestamp: z.date()
 })
 
-export const postHistoryWithPostMetadata = postHistoryCore.extend({
-  postMetadata: postMetadataCore
-})
-
-export const postMetadataWithPostHistory = postMetadataCore.extend({
-  postHistory: postHistoryCore
-})
+const outRelations = z.array(
+  z.object({
+    isSystem: z.boolean(),
+    toPostId: z.string(),
+    toPost: yPostCore.partial().extend({
+      postUpdates: z.array(yPostUpdateCore.pick({ title: true }))
+    })
+  })
+)
 
 export const postHistoryEssentials = z.object({
   title: z.string().optional(),
   language: z.string().optional().default('en'),
-  content: z.string().describe('Encoded by @msgpack/msgpack')
+  content: z.string()
 })
 
 const WhereStringFilters = z.object({
@@ -59,29 +53,39 @@ const WhereStringFilters = z.object({
   mode: z.enum(['insensitive'])
 })
 
-const WhereStringFiltersUnion = z.union([z.string(), WhereStringFilters.partial()])
+const WhereStringFiltersUnion = z.union([
+  z.string(),
+  WhereStringFilters.partial()
+])
 
 const WhereBoolFilters = z.object({
   equals: z.boolean(),
   not: z.boolean()
 })
 
-const WhereBoolFiltersUnion = z.union([z.boolean(), WhereBoolFilters.partial()])
+const WhereBoolFiltersUnion = z.union([
+  z.boolean(),
+  WhereBoolFilters.partial()
+])
 
 const WhereOptions = z.object({
   id: WhereStringFiltersUnion.optional(),
-  postHistory: z.object({
-    every: z.object({
-      postMetadata: z.object({
-        userId: z.string()
-      })
-    }),
-    some: z.object({
-      title: WhereStringFiltersUnion.optional(),
-      language: postHistoryCore.shape.language,
-      postId: postHistoryCore.shape.postId
-    }).partial()
-  }).partial(),
+  postHistory: z
+    .object({
+      every: z.object({
+        postMetadata: z.object({
+          userId: z.string()
+        })
+      }),
+      some: z
+        .object({
+          title: WhereStringFiltersUnion.optional(),
+          language: yPostCore.shape.language,
+          postId: yPostUpdateCore.shape.postId
+        })
+        .partial()
+    })
+    .partial(),
   inRelations: z.object({
     some: z.object({
       isSystem: WhereBoolFiltersUnion.optional(),
@@ -103,7 +107,7 @@ const ReviewTypes = z.enum(['NEUTRAL', 'NEGATIVE', 'POSITIVE'])
 export const cursor = z.string().optional()
 
 export const postPaginationQueries = z.object({
-  cursor: cursor.describe('Usually the last result array element\'s id.')
+  cursor: cursor.describe("Usually the last result array element's id.")
 })
 
 // Params
@@ -116,13 +120,22 @@ export const postHistoryParamsId = z.object({
   historyId: z.string()
 })
 
+export const initialUpdateParamsType = z.object({
+  type: z.enum([ENTITY, REVIEW, BIO])
+})
+
 // Requests
 
-export const postsFilterRequestSchema = z.object({
-  AND: z.array(WhereOptions.partial())
-}).merge(WhereOptions).partial()
+export const postsFilterRequestSchema = z
+  .object({
+    AND: z.array(WhereOptions.partial())
+  })
+  .merge(WhereOptions)
+  .partial()
 
-export const postReviewAddRequestSchema = postHistoryEssentials.required().merge(z.object({ type: ReviewTypes }))
+export const postReviewAddRequestSchema = postHistoryEssentials
+  .required()
+  .merge(z.object({ type: ReviewTypes }))
 
 // Responses
 
@@ -130,84 +143,125 @@ export const postReviewResponseSchema = z.object({
   id: z.string(),
   type: ReviewTypes,
   userId: z.string(),
-  fromPost: postCore.partial().extend({
-    postHistory: z.array(postHistoryCore.pick({ content: true, title: true, language: true }))
-  }).optional(),
+  fromPost: yPostCore
+    .partial()
+    .extend({
+      postUpdates: z.array(
+        yPostUpdateCore.pick({ title: true, createdTimestamp: true })
+      )
+    })
+    .optional(),
   toPostId: z.string()
 })
 
-export const postResponseSchema = postCore.partial().extend({
-  postHistory: z.array(postHistoryCore.pick({
-    title: true,
-    language: true,
-    createdTimestamp: true
-  }))
-})
-
-export const postWithPostHistoryContentAndOutRelationsResponseSchema = postCore.partial().extend({
-  postHistory: z.array(postHistoryCore),
-  outRelations: z.array(z.object({
-    isSystem: z.boolean(),
-    toPost: postCore.partial().extend({
-      postHistory: z.array(postHistoryCore.pick({ language: true, title: true }))
+export const yPostResponseSchema = yPostCore.partial().extend({
+  postUpdates: z.array(
+    yPostUpdateCore.pick({
+      title: true,
+      createdTimestamp: true
     })
-  })),
-  reviewing: z.union([z.null(), z.object({
-    toPost: postCore.pick({ id: true }).extend({
-      postHistory: z.array(postHistoryCore.pick({ language: true, title: true }))
-    }),
-    type: postReviewResponseSchema.shape.type
-  })])
+  ),
+  language: z.string()
 })
 
-export const postHistoryResponseSchema = postHistoryCore
+export const yPostWithYPostUpdatesContentAndOutRelationsResponseSchema =
+  yPostCore.partial().extend({
+    postUpdates: z.array(yPostUpdateCore),
+    outRelations: z.array(
+      z.object({
+        isSystem: z.boolean(),
+        toPost: yPostCore.partial().extend({
+          postUpdates: z.array(yPostUpdateCore.pick({ title: true }))
+        })
+      })
+    ),
+    reviewing: z.union([
+      z.null(),
+      z.object({
+        toPost: yPostCore.pick({ id: true, language: true }).extend({
+          postUpdates: z.array(
+            yPostUpdateCore.pick({ title: true, createdTimestamp: true })
+          )
+        }),
+        type: postReviewResponseSchema.shape.type
+      })
+    ])
+  })
 
-export const postUpdateResponse = postCore.extend({
-  postHistory: postHistoryCore.pick({ id: true, language: true, title: true, createdTimestamp: true })
+export const yPostWithOutRelationsAndLatestYPostUpdate = yPostCore
+  .partial()
+  .extend({
+    postUpdates: z.array(
+      yPostUpdateCore.pick({ title: true, id: true, createdTimestamp: true })
+    ),
+    outRelations
+  })
+
+export const getYPostByIdResponseSchema = z.object({
+  post: yPostWithOutRelationsAndLatestYPostUpdate,
+  html: z.string()
 })
+
+const yPostUpdateResponseSchema = yPostUpdateCore
+
+const initialUpdateResponseSchema = z.string()
+
+const htmlResponseSchema = z.string()
 
 // Pagination responses
 
-export const postsPaginatedResponseSchema = z.object({
-  result: z.array(postResponseSchema),
+export const yPostsPaginatedResponseSchema = z.object({
+  result: z.array(yPostResponseSchema),
   cursor,
   count: z.number()
 })
 
-export const postHistoriesPaginatedResponseSchema = z.object({
-  result: z.array(postHistoryResponseSchema.omit({ content: true })),
+export const yPostUpdatesPaginatedResponseSchema = z.object({
+  result: z.array(yPostUpdateResponseSchema.omit({ content: true })),
   cursor
 })
 
 export const postReviewsPaginatedResponseSchema = z.object({
-  result: z.array(postReviewResponseSchema.merge(z.object({
-    user: z.object({ name: z.string() })
-  }))),
+  result: z.array(
+    postReviewResponseSchema.merge(
+      z.object({
+        user: z.object({ name: z.string() })
+      })
+    )
+  ),
   cursor,
   count: z.number()
 })
 
 // Build
 
-export const { schemas: postSchemas, $ref } = buildJsonSchemas({
-  postsFilterRequestSchema,
-  postReviewAddRequestSchema,
+export const { schemas: postSchemas, $ref } = buildJsonSchemas(
+  {
+    postsFilterRequestSchema,
+    postReviewAddRequestSchema,
 
-  postResponseSchema,
-  postWithPostHistoryContentAndOutRelationsResponseSchema,
-  postReviewResponseSchema,
+    yPostResponseSchema,
+    yPostWithYPostUpdatesContentAndOutRelationsResponseSchema,
+    getYPostByIdResponseSchema,
+    postReviewResponseSchema,
+    initialUpdateResponseSchema,
+    htmlResponseSchema,
 
-  postParamsId,
-  postHistoryParamsId,
-  postPaginationQueries,
+    postParamsId,
+    postHistoryParamsId,
+    initialUpdateParamsType,
 
-  postsPaginatedResponseSchema,
-  postHistoriesPaginatedResponseSchema,
-  postReviewsPaginatedResponseSchema
-}, { $id: 'post' })
+    postPaginationQueries,
+
+    yPostsPaginatedResponseSchema,
+    yPostUpdatesPaginatedResponseSchema,
+    postReviewsPaginatedResponseSchema
+  },
+  { $id: 'post' }
+)
 
 /**
- * @typedef {z.infer<typeof postCore>} PostCoreSchema
- * @typedef {z.infer<typeof postResponseSchema>} PostResponseSchema
- * @typedef {z.infer<typeof postsPaginatedResponseSchema>} PostsPaginatedResponseSchema
+ * @typedef {z.infer<typeof yPostCore>} YPostCoreSchema
+ * @typedef {z.infer<typeof yPostResponseSchema>} YPostResponseSchema
+ * @typedef {z.infer<typeof yPostsPaginatedResponseSchema>} YPostsPaginatedResponseSchema
  */

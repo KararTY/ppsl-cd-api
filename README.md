@@ -18,8 +18,14 @@ Based\* on [@TomDoesTech](https://github.com/TomDoesTech)'s video titled [Build 
 
 * Node.js LTS recommended (Node.js 18.16.0 when this was written).
 * Yarn (Node.js >=16.10 (corepack) & Node.js >=18.6 (yarn@stable) installation steps).
-* `yarn` && `yarn run prisma:db-push` && `yarn start`
-* `git submodule init` && `git submodule update`
+* Copy `.env.example` file content into a `.env` file that is in the same directory.
+  Fill out the .env details. **Most notably `DATABASE_PASSWORD` to continue installation.**
+* Use docker compose to `docker compose up` the `compose.yaml` file. **(REQUIRES `DATABASE_PASSWORD` TO BE SET).**
+* Run `yarn` to install project dependencies.
+* At this point, you should probably setup the rest of the .env stuff. Like `DATABASE_URL`. Google & GitHub require OAuth apps to be set. GitHub is easiest to setup. Just create a new organisation and create an OAuth App for it. **Set CALLBACK URL TO `http://localhost:5173/api/auth/callback/github` FOR GitHub.**
+* Initialise & seed the database: `yarn run prisma:db-push && yarn run prisma:seed`
+* `git submodule init && git submodule update`
+* `yarn start` to start server.
 
 ## License
 

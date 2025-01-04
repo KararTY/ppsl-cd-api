@@ -1,24 +1,9 @@
-import { ACTIVE_POSTHISTORY_WHERE } from '../../constants.js'
-
-/**
- * @type {import('../../../.prisma/client').Prisma.PostInclude}
- */
-export const activePostHistoryInclude = {
-  postHistory: {
-    where: ACTIVE_POSTHISTORY_WHERE,
-    take: 1
-  },
-  _count: true
-}
-
 /**
  * @param {PrismaClient} prisma
- * @param {import('../../../.prisma/client').Prisma.PostWhereInput} filter
- * @param {import('../../../.prisma/client').Prisma.PostInclude} include
  */
-export async function allPostsPaginated (prisma, cursor, filter) {
+export async function allYPostsPaginated (prisma, cursor, filter) {
   const [posts, count] = await prisma.$transaction([
-    prisma.post.findMany({
+    prisma.yPost.findMany({
       take: 50,
       skip: cursor ? 1 : undefined,
       cursor: cursor
@@ -27,12 +12,24 @@ export async function allPostsPaginated (prisma, cursor, filter) {
           }
         : undefined,
       where: filter,
-      include: activePostHistoryInclude,
+      include: {
+        postUpdates: {
+          orderBy: {
+            createdTimestamp: 'desc'
+          },
+          select: {
+            title: true,
+            createdTimestamp: true
+          },
+          take: 1
+        },
+        _count: true
+      },
       orderBy: {
         lastUpdated: 'desc'
       }
     }),
-    prisma.post.count({ where: filter })
+    prisma.yPost.count({ where: filter })
   ])
 
   return { posts, count }
@@ -40,9 +37,10 @@ export async function allPostsPaginated (prisma, cursor, filter) {
 
 /**
  * @param {PrismaClient} prisma
+ * @param {string} id
  */
-export async function postWithContentById (prisma, id) {
-  return await prisma.post.findFirst({
+export async function yPostWithContentById (prisma, id) {
+  return prisma.yPost.findFirst({
     where: {
       id
     },
@@ -51,39 +49,98 @@ export async function postWithContentById (prisma, id) {
         select: {
           toPost: {
             select: {
-              id: true,
-              postHistory: {
+              language: true,
+              postUpdates: {
                 select: {
-                  title: true,
-                  language: true
+                  title: true
                 },
-                where: activePostHistoryInclude.postHistory.where,
                 take: 1
               }
             }
           },
+          toPostId: true,
           isSystem: true
         }
       },
-      postHistory: activePostHistoryInclude.postHistory,
-      reviewing: {
+      postUpdates: true
+      // reviewing: {
+      //   select: {
+      //     toPost: {
+      //       select: {
+      //         id: true,
+      //         postHistory: {
+      //           select: {
+      //             title: true,
+      //             language: true
+      //           },
+      //           where: activePostHistoryInclude.postHistory.where,
+      //           take: 1
+      //         }
+      //       }
+      //     },
+      //     type: true
+      //   }
+      // }
+    }
+  })
+}
+
+/**
+ * @param {PrismaClient} prisma
+ * @param {string} postId
+ */
+export async function yPostWithLatestPostUpdateTitle (prisma, postId) {
+  return prisma.yPost.findFirst({
+    where: {
+      id: postId
+    },
+    include: {
+      outRelations: {
         select: {
           toPost: {
             select: {
-              id: true,
-              postHistory: {
+              language: true,
+              postUpdates: {
                 select: {
-                  title: true,
-                  language: true
+                  title: true
                 },
-                where: activePostHistoryInclude.postHistory.where,
                 take: 1
               }
             }
           },
-          type: true
+          toPostId: true,
+          isSystem: true
         }
+      },
+      postUpdates: {
+        select: {
+          title: true,
+          id: true,
+          createdTimestamp: true
+        },
+        orderBy: {
+          createdTimestamp: 'desc'
+        },
+        take: 1
       }
+      // reviewing: {
+      //   select: {
+      //     toPost: {
+      //       select: {
+      //         id: true,
+      //         postHistory: {
+      //           select: {
+      //             title: true,
+      //             language: true
+      //           },
+      //           where: activePostHistoryInclude.postHistory.where,
+      //           take: 1
+      //         }
+      //       }
+      //     },
+      //     type: true
+      //   }
+      // }
     }
   })
 }
@@ -102,4 +159,24 @@ export async function updatePostLastUpdatedById (prisma, id, newLastUpdated) {
   })
 
   return lastUpdated
+}
+
+/**
+ * @param {PrismaClient} prisma
+ * @param {string} postId
+ * @param {string} content
+ */
+export const upsertHTML = (prisma, postId, content) => {
+  return prisma.html.upsert({
+    where: {
+      postId
+    },
+    create: {
+      postId,
+      content
+    },
+    update: {
+      content
+    }
+  })
 }

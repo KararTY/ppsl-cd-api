@@ -2,7 +2,7 @@ import fp from 'fastify-plugin'
 import Middie from '@fastify/middie/lib/engine.js'
 import helmet from 'helmet'
 import { createAuthMiddleware, getSession } from 'authey'
-import { PrismaAdapter } from '@next-auth/prisma-adapter'
+import { PrismaAdapter } from '@auth/prisma-adapter'
 
 import { createDefaultBioPost } from '../../modules/bio/bio.service.js'
 
@@ -13,7 +13,7 @@ import { GitHub } from './providers/github.js'
  * @param {Fastify.Request} request
  * @param {Fastify.Reply} reply
  */
-export async function authenticate (request, reply, next) {
+export async function authenticate (request, reply) {
   const session = await request.server.getSession(request)
 
   if (!session?.user) {
@@ -35,6 +35,7 @@ const authPlugin = fp(async (fastify, opts) => {
    * @type {import('@auth/core').AuthConfig}
    */
   const options = {
+    basePath: '/api/auth',
     secret: process.env.AUTH_SECRET,
     trustHost: true,
     providers: [Google, GitHub],
