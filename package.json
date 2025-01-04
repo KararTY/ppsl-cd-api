@@ -2,29 +2,29 @@
   "name": "ppsl-cd-api",
   "version": "0.1.0",
   "license": "AGPL-3.0-only",
-  "packageManager": "yarn@4.0.2",
+  "packageManager": "yarn@4.6.0",
   "type": "module",
   "main": "src/server.js",
   "scripts": {
     "start": "node --inspect ./src/server.js",
-    "prisma:generate": "yarn rimraf ./.prisma && yarn pnpify prisma generate",
-    "prisma:db-push": "yarn pnpify prisma db push",
-    "prisma:migrate-reset": "yarn pnpify prisma migrate reset",
-    "prisma:migrate-dev": "yarn pnpify prisma migrate dev",
-    "prisma:seed": "yarn node ./prisma/seed/types.js",
+    "prisma:generate": "npx yarn rimraf ./.prisma && npx yarn pnpify prisma generate",
+    "prisma:db-push": "npx yarn pnpify prisma db push",
+    "prisma:migrate-reset": "npx yarn pnpify prisma migrate reset",
+    "prisma:migrate-dev": "npx yarn pnpify prisma migrate dev",
+    "prisma:seed": "npx yarn node ./prisma/seed/types.js",
     "lint": "standard",
     "lintfix": "standard --fix"
   },
   "dependencies": {
-    "@auth/core": "^0.26.3",
+    "@auth/core": "^0.37.4",
+    "@auth/prisma-adapter": "^2.7.4",
     "@fastify/middie": "^8.3.0",
     "@fastify/swagger": "^8.14.0",
     "@fastify/swagger-ui": "^2.1.0",
-    "@lexical/headless": "^0.13.1",
-    "@lexical/html": "^0.13.1",
-    "@lexical/utils": "^0.13.1",
-    "@lexical/yjs": "^0.13.1",
-    "@next-auth/prisma-adapter": "^1.0.7",
+    "@lexical/headless": "0.22.0",
+    "@lexical/html": "0.22.0",
+    "@lexical/utils": "0.22.0",
+    "@lexical/yjs": "0.22.0",
     "@prisma/client": "^5.9.1",
     "authey": "^0.8.3",
     "dotenv": "^16.4.1",
@@ -33,11 +33,11 @@
     "fastify-plugin": "^4.5.1",
     "fastify-zod": "^1.4.0",
     "helmet": "^7.1.0",
-    "lexical": "^0.13.1",
+    "lexical": "0.22.0",
     "linkedom": "^0.16.8",
     "linkedom-global": "^1.0.0",
     "uint8array-extras": "^1.1.0",
-    "yjs": ">=13.5.22",
+    "yjs": "13.6.21",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -49,8 +49,8 @@
     "typescript": "^5.3.3"
   },
   "overrides": {
-    "@lexical/yjs": {
-      "yjs": "$yjs"
-    }
+    "lexical": "0.22.0",
+    "yjs": "13.6.21",
+    "@lexical/yjs": "0.22.0"
   }
 }
