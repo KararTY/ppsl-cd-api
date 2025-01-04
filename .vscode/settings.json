@@ -7,8 +7,10 @@
   "npm.packageManager": "yarn",
   "standard.enable": true,
   "standard.autoFixOnSave": true,
-  "standard.validate": ["javascript"],
+  "standard.validate": [
+    "javascript",
+    "javascriptreact",
+  ],
   "javascript.validate.enable": false,
-  "eslint.enable": false,
   "javascript.format.enable": false
 }
