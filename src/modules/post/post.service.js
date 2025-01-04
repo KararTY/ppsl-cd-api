@@ -1,51 +1,3 @@
-import { ACTIVE_POSTHISTORY_WHERE } from '../../constants.js'
-
-/**
- * @type {import('../../../.prisma/client').Prisma.PostInclude}
- */
-export const activePostHistoryInclude = {
-  postHistory: {
-    where: ACTIVE_POSTHISTORY_WHERE,
-    take: 1
-  },
-  _count: true
-}
-
-/**
- * @type {import('../../../.prisma/client').Prisma.YPostInclude}
- */
-export const activeYPostUpdateInclude = {
-  postUpdates: true,
-  _count: true
-}
-
-/**
- * @param {PrismaClient} prisma
- * @param {import('../../../.prisma/client').Prisma.PostWhereInput} filter
- * @param {import('../../../.prisma/client').Prisma.PostInclude} include
- */
-export async function allPostsPaginated (prisma, cursor, filter) {
-  const [posts, count] = await prisma.$transaction([
-    prisma.post.findMany({
-      take: 50,
-      skip: cursor ? 1 : undefined,
-      cursor: cursor
-        ? {
-            id: cursor
-          }
-        : undefined,
-      where: filter,
-      include: activePostHistoryInclude,
-      orderBy: {
-        lastUpdated: 'desc'
-      }
-    }),
-    prisma.post.count({ where: filter })
-  ])
-
-  return { posts, count }
-}
-
 /**
  * @param {PrismaClient} prisma
  */
@@ -60,7 +12,19 @@ export async function allYPostsPaginated (prisma, cursor, filter) {
           }
         : undefined,
       where: filter,
-      include: activeYPostUpdateInclude,
+      include: {
+        postUpdates: {
+          orderBy: {
+            createdTimestamp: 'desc'
+          },
+          select: {
+            title: true,
+            createdTimestamp: true
+          },
+          take: 1
+        },
+        _count: true
+      },
       orderBy: {
         lastUpdated: 'desc'
       }
@@ -75,59 +39,8 @@ export async function allYPostsPaginated (prisma, cursor, filter) {
  * @param {PrismaClient} prisma
  * @param {string} id
  */
-export async function postWithContentById (prisma, id) {
-  return await prisma.post.findFirst({
-    where: {
-      id
-    },
-    include: {
-      outRelations: {
-        select: {
-          toPost: {
-            select: {
-              id: true,
-              postHistory: {
-                select: {
-                  title: true,
-                  language: true
-                },
-                where: activePostHistoryInclude.postHistory.where,
-                take: 1
-              }
-            }
-          },
-          isSystem: true
-        }
-      },
-      postHistory: activePostHistoryInclude.postHistory,
-      reviewing: {
-        select: {
-          toPost: {
-            select: {
-              id: true,
-              postHistory: {
-                select: {
-                  title: true,
-                  language: true
-                },
-                where: activePostHistoryInclude.postHistory.where,
-                take: 1
-              }
-            }
-          },
-          type: true
-        }
-      }
-    }
-  })
-}
-
-/**
- * @param {PrismaClient} prisma
- * @param {string} id
- */
 export async function yPostWithContentById (prisma, id) {
-  return await prisma.yPost.findFirst({
+  return prisma.yPost.findFirst({
     where: {
       id
     },
@@ -149,7 +62,7 @@ export async function yPostWithContentById (prisma, id) {
           isSystem: true
         }
       },
-      postUpdates: activeYPostUpdateInclude.postUpdates
+      postUpdates: true
       // reviewing: {
       //   select: {
       //     toPost: {
@@ -174,12 +87,12 @@ export async function yPostWithContentById (prisma, id) {
 
 /**
  * @param {PrismaClient} prisma
- * @param {string} id
+ * @param {string} postId
  */
-export async function yPostWithLatestPostUpdateTitle (prisma, id) {
-  return await prisma.yPost.findFirst({
+export async function yPostWithLatestPostUpdateTitle (prisma, postId) {
+  return prisma.yPost.findFirst({
     where: {
-      id
+      id: postId
     },
     include: {
       outRelations: {
@@ -204,6 +117,9 @@ export async function yPostWithLatestPostUpdateTitle (prisma, id) {
           title: true,
           id: true,
           createdTimestamp: true
+        },
+        orderBy: {
+          createdTimestamp: 'desc'
         },
         take: 1
       }
@@ -243,4 +159,24 @@ export async function updatePostLastUpdatedById (prisma, id, newLastUpdated) {
   })
 
   return lastUpdated
+}
+
+/**
+ * @param {PrismaClient} prisma
+ * @param {string} postId
+ * @param {string} content
+ */
+export const upsertHTML = (prisma, postId, content) => {
+  return prisma.html.upsert({
+    where: {
+      postId
+    },
+    create: {
+      postId,
+      content
+    },
+    update: {
+      content
+    }
+  })
 }

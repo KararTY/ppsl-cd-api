@@ -1,18 +1,48 @@
 import { uint8ArrayToBase64 } from 'uint8array-extras'
-import { InvalidEditor, MissingTitle, NoPermissions, NoValidationAvailable, NotFound } from '../../errors.js'
-import { createYEntity } from '../entity/entity.service.js'
+
+import { INTERNAL_REQUEST } from '../../constants.js'
+import {
+  InvalidEditor,
+  MissingTitle,
+  NoPermissions,
+  NoValidationAvailable,
+  NotFound
+} from '../../errors.js'
+import { createEntity } from '../entity/entity.service.js'
+import { updateEntityYPost } from '../entity/entity.controller.js'
 import { getAuthenticatedUserSession } from '../user/user.controller.js'
 import { postAuthors } from '../user/user.service.js'
+import {
+  diffUpdateUsingStateVector,
+  encodeYDocToUpdateV2,
+  getStateVectorFromUpdate,
+  mergePostUpdates,
+  postUpdatesToUint8Arr,
+  yPostUpdatesToBase64
+} from '../lexical/yjs.js'
 import { SYSTEM_IDS } from '../lexical/ppsl-cd-lexical-shared/src/editors/constants.js'
-import { validateEditor, validateEntityEditor } from '../lexical/lexical.controller.js'
-import { getEntityMentions } from '../lexical/lexical.service.js'
-import { getSystemYPostRelations, userHasPermissionWriteForYPostByPostUpdate } from '../permission/permission.service.js'
-import { allYPostsPaginated } from './post.service.js'
-import { postWithPostUpdatesByPostId, replaceActivePostHistory } from '../postHistory/postHistory.service.js'
-import { getMiddlewarePost } from './post.middleware.js'
-import { mergePostUpdates, postUpdatesToUint8Arr } from '../lexical/yjs.js'
-import { updateReviewPost } from '../postReview/postReview.controller.js'
-import { updateEntityPost } from '../entity/entity.controller.js'
+import {
+  validateUpdate,
+  validateEntityEditor
+} from '../lexical/lexical.controller.js'
+import {
+  defaultUpdate,
+  getEntityMentions
+} from '../lexical/lexical.service.js'
+import {
+  getSystemYPostRelations,
+  userHasPermissionWriteForYPostByPostUpdate
+} from '../permission/permission.service.js'
+import { updateReviewYPost } from '../postReview/postReview.controller.js'
+import { yPostWithPostUpdatesByPostId } from '../postUpdate/postUpdate.service.js'
+import toHTML from '../lexical/ppsl-cd-lexical-shared/src/toHTML/index.js'
+
+import {
+  getMiddlewarePost,
+  getMiddlewarePostWithContent
+} from './post.middleware.js'
+import { allYPostsPaginated, upsertHTML } from './post.service.js'
+import { getPostType } from '../lexical/ppsl-cd-lexical-shared/src/editors/utils.js'
 
 const { SYSTEM, ENTITY, BIO, REVIEW } = SYSTEM_IDS
 
@@ -39,15 +69,20 @@ export async function getAllPosts (request, reply) {
     filter.AND.push(excludeBioPosts)
   } else {
     filter = {
-      AND: [{
-        ...filter
-      },
-      { ...excludeBioPosts }
+      AND: [
+        {
+          ...filter
+        },
+        { ...excludeBioPosts }
       ]
     }
   }
 
-  const { posts, count } = await allYPostsPaginated(request.server.prisma, cursor, filter)
+  const { posts, count } = await allYPostsPaginated(
+    request.server.prisma,
+    cursor,
+    filter
+  )
 
   if (posts.length === 0) {
     return {
@@ -70,13 +105,17 @@ export async function getAllPosts (request, reply) {
  */
 export async function getAllSystemPosts (request, reply) {
   const { cursor } = request.query
-  const { posts, count } = await allYPostsPaginated(request.server.prisma, cursor, {
-    outRelations: {
-      some: {
-        toPostId: SYSTEM
+  const { posts, count } = await allYPostsPaginated(
+    request.server.prisma,
+    cursor,
+    {
+      outRelations: {
+        some: {
+          toPostId: SYSTEM
+        }
       }
     }
-  })
+  )
 
   if (posts.length === 0) {
     return {
@@ -94,19 +133,48 @@ export async function getAllSystemPosts (request, reply) {
 }
 
 /**
+ * @param {PrismaClient} prisma
+ * @param {string} id
+ */
+const getYPostHTML = async (prisma, id) => {
+  /**
+   * @type {NonNullable<Awaited<ReturnType<yPostWithPostUpdatesByPostId>>>}
+   */
+  const post = await yPostWithPostUpdatesByPostId(prisma, id)
+
+  if (post.html?.content) {
+    return { post: { ...post, html: undefined }, html: post.html.content }
+  }
+
+  const mergedUpdate = yPostUpdatesToBase64(post.postUpdates)
+
+  if (!mergedUpdate) {
+    return { post, html: null }
+  }
+
+  const type = getPostType(post)
+
+  const html = await toHTML({ update: mergedUpdate }, type)
+
+  Promise.resolve(upsertHTML(prisma, post.id, html))
+
+  return { post, html }
+}
+
+/**
  * @param {Fastify.Request} request
  * @param {Fastify.Reply} reply
  */
-export async function getPostUpdatesAsData (request, reply) {
-  const post = await postWithPostUpdatesByPostId(request.server.prisma, request.params.id)
+export async function getYPostById (request, reply) {
+  const { post, html } = await getYPostHTML(
+    request.server.prisma,
+    request.params.id
+  )
 
-  const uint8Array = postUpdatesToUint8Arr(post.postUpdates)
-  const mergedUpdates = mergePostUpdates(uint8Array)
-  const update = uint8ArrayToBase64(mergedUpdates)
+  // Use latest postUpdate for post.postUpdates.
+  post.postUpdates = getMiddlewarePost(request).postUpdates
 
-  post.postUpdates = request.post.postUpdates
-
-  return { post, update }
+  return { post, html }
 }
 
 /**
@@ -122,27 +190,40 @@ export async function createEntityPost (request, reply) {
 
   const session = getAuthenticatedUserSession(request)
 
-  const { content: sanitizedContent, rawContent, valid } = await validateEntityEditor(request, reply, true)
+  const { valid, doc, editor } = await validateEntityEditor(
+    request,
+    reply,
+    INTERNAL_REQUEST
+  )
 
-  if (!valid) return InvalidEditor(reply)
-
-  const stringifiedContent = JSON.stringify(sanitizedContent)
-  const mentions = await getEntityMentions(stringifiedContent)
-
-  /**
-   * @type {PrismaTypes.PostHistory}
-   */
-  const dataToInsert = {
-    title,
-    content: rawContent
+  if (!valid) {
+    return InvalidEditor(reply)
   }
 
-  return await createYEntity(request.server.prisma, {
-    userId: session.user.id,
-    language,
-    data: dataToInsert,
-    mentions
-  })
+  const mentions = await getEntityMentions(editor)
+
+  // By this point, we have probably modified the editor. Let's recreate the content.
+  const backendUpdate = encodeYDocToUpdateV2(doc)
+
+  const { byteLength } = backendUpdate
+
+  const backendContent = uint8ArrayToBase64(backendUpdate)
+
+  const body = { language, data: { title, content: backendContent }, mentions }
+  const metadata = {
+    user: { name: session.user.name, id: session.user.id },
+    byteLength
+  }
+
+  const createdEntity = await createEntity(
+    request.server.prisma,
+    body,
+    metadata
+  )
+
+  // await upsertHTML(createdArticle.id, await toHTML({ config: 'article', update: backendContent }))
+
+  return createdEntity
 }
 
 /**
@@ -237,4 +318,43 @@ export async function getPostAuthors (request, reply) {
   if (!res) return NotFound(reply)
 
   return res
+}
+
+/**
+ * @param {Fastify.Request} request
+ * @param {Fastify.Reply} reply
+ */
+export const getInitialUpdate = (request, reply) => {
+  const { type } = request.params
+
+  const initialUpdate = defaultUpdate[type]
+
+  return initialUpdate
+}
+
+/**
+ * @param {Fastify.Request} request
+ * @param {Fastify.Reply} reply
+ */
+export async function cacheBustHTML (request, reply) {
+  const { id } = request.params
+
+  /**
+   * @type {NonNullable<Awaited<ReturnType<yPostWithPostUpdatesByPostId>>>}
+   */
+  const post = await yPostWithPostUpdatesByPostId(request.server.prisma, id)
+
+  const type = getPostType(post)
+
+  const mergedUpdate = yPostUpdatesToBase64(post.postUpdates)
+
+  if (!mergedUpdate) {
+    return { post, html: null }
+  }
+
+  const html = await toHTML({ update: mergedUpdate }, type)
+
+  Promise.resolve(upsertHTML(request.server.prisma, post.id, html))
+
+  return html
 }

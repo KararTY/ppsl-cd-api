@@ -63,29 +63,12 @@ export async function userById (prisma, id) {
 
 /**
  * @param {PrismaClient} prisma
- */
-export async function userAuthorByPostHistoryId (prisma, postHistoryId) {
-  return await prisma.user.findFirst({
-    where: {
-      postsMetadata: {
-        some: {
-          postHistory: {
-            id: postHistoryId
-          }
-        }
-      }
-    }
-  })
-}
-
-/**
- * @param {PrismaClient} prisma
  * @param {string} postUpdateId
  */
 export async function userAuthorByYPostUpdateId (prisma, postUpdateId) {
-  return await prisma.user.findFirst({
+  return prisma.user.findFirst({
     where: {
-      yPostUpdatesMetadata: {
+      postUpdatesMetadata: {
         some: {
           postUpdate: {
             id: postUpdateId
@@ -100,9 +83,9 @@ export async function userAuthorByYPostUpdateId (prisma, postUpdateId) {
  * @param {PrismaClient} prisma
  */
 export async function postAuthors (prisma, id) {
-  return await prisma.user.findMany({
+  return prisma.user.findMany({
     where: {
-      yPostUpdatesMetadata: {
+      postUpdatesMetadata: {
         some: {
           postUpdate: {
             postId: id

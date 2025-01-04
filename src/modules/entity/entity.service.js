@@ -6,10 +6,13 @@ const { ENTITY } = SYSTEM_IDS
 /**
  * Creates yFolder & yPost & yPostUpdate & yPostUpdateMetadata
  * @param {PrismaClient} prisma
- * @param {{ userId: string, language?: string, data: {title: string, content: string}, mentions: string[] }}
+ * @param {{ data: { title: string, content: string }, language?: string, mentions: string[] }}
+ * @param {{ user: { name: string, id: string }, byteLength: number }} metadata
  */
-export async function createYEntity (prisma, { userId, language, data, mentions }) {
+export async function createEntity (prisma, { data, language, mentions }, metadata) {
   const outRelations = mentions.map((mentionPostId) => ({ isSystem: false, toPostId: mentionPostId }))
+
+  const { user, byteLength } = metadata
 
   const { id, lang, postUpdate } = await prisma.$transaction(async (tx) => {
     // Create yFolder
@@ -18,7 +21,7 @@ export async function createYEntity (prisma, { userId, language, data, mentions 
     })
 
     // Create yPost
-    const { id, language: lang } = await tx.yPost.create({
+    const { id: yPostId, language: lang } = await tx.yPost.create({
       data: {
         language,
         yFolder: {
@@ -37,7 +40,18 @@ export async function createYEntity (prisma, { userId, language, data, mentions 
             ],
             skipDuplicates: true
           }
-        }
+        },
+        // Update's byteLength is the initial total byteLength on creation.
+        totalByteLength: metadata.byteLength
+      },
+      select: {
+        id: true,
+        language: true
+      },
+      // @ts-ignore
+      _metadata: {
+        user,
+        byteLength
       }
     })
 
@@ -46,15 +60,16 @@ export async function createYEntity (prisma, { userId, language, data, mentions 
       data: {
         user: {
           connect: {
-            id: userId
+            id: user.id
           }
         },
+        byteLength,
         postUpdate: {
           create: {
             ...data,
             post: {
               connect: {
-                id // IMPORTANT
+                id: yPostId // IMPORTANT
               }
             }
           }
@@ -62,7 +77,7 @@ export async function createYEntity (prisma, { userId, language, data, mentions 
       }
     }).postUpdate()
 
-    return { id, lang, postUpdate }
+    return { id: yPostId, lang, postUpdate }
   })
 
   return {

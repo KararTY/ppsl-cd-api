@@ -1,11 +1,12 @@
-import { base64ToUint8Array } from 'uint8array-extras'
-import yjs from './yjs.cjs'
-import lexicalHeadless from '@lexical/headless'
-import lexicalYjs from '@lexical/yjs/LexicalYjs.js'
+import { base64ToUint8Array, uint8ArrayToBase64 } from 'uint8array-extras'
+import * as yjs from './yjs.mjs'
+import * as lexicalHeadless from '@lexical/headless'
+import * as lexicalYjs from '@lexical/yjs'
 
-const Y = yjs
+const { Y } = yjs
 
-const { createBinding, syncYjsChangesToLexical } = lexicalYjs
+const { createBinding, syncYjsChangesToLexical, syncLexicalUpdateToYjs } =
+  lexicalYjs
 
 const { createHeadlessEditor } = lexicalHeadless
 
@@ -13,14 +14,17 @@ const { createHeadlessEditor } = lexicalHeadless
 
 /**
  * @param {Uint8Array} update
+ * @returns {{ editor: Lexical.LexicalEditor, doc: Y.Doc }}
  */
-export function updateToJSON (config, update) {
+export function getEditor (config, update) {
   const editor = createHeadlessEditor(config)
 
   const dummyId = 'dummy-id'
+  /** @type {import('@lexical/yjs').Provider} */
   const dummyProvider = {
     awareness: {
       setLocalState: () => {},
+      // @ts-ignore
       getStates: () => [],
       getLocalState: () => null,
       on: () => {},
@@ -28,10 +32,17 @@ export function updateToJSON (config, update) {
     }
   }
   const copyTarget = new Y.Doc()
-  const copyBinding = createBinding(editor, dummyProvider, dummyId, copyTarget, new Map([[dummyId, copyTarget]]))
+  const copyBinding = createBinding(
+    editor,
+    dummyProvider,
+    dummyId,
+    copyTarget,
+    new Map([[dummyId, copyTarget]])
+  )
 
   // this syncs yjs changes to the lexical editor
-  const onYjsTreeChanges = (events, transaction) => {
+  /** @param {Y.YEvent<any>[]} events */
+  const onYjsTreeChanges = (events) => {
     syncYjsChangesToLexical(copyBinding, dummyProvider, events, false)
   }
   copyBinding.root.getSharedType().observeDeep(onYjsTreeChanges)
@@ -41,11 +52,45 @@ export function updateToJSON (config, update) {
 
   editor.update(() => {}, { discrete: true })
 
-  return editor.toJSON().editorState
+  // Enables "copyTarget"/Y.Doc to be updated when Lexical changes happen.
+  editor.registerUpdateListener(
+    ({
+      dirtyElements,
+      dirtyLeaves,
+      editorState,
+      normalizedNodes,
+      prevEditorState,
+      tags
+    }) => {
+      if (tags.has('skip-collab') === false) {
+        syncLexicalUpdateToYjs(
+          copyBinding,
+          dummyProvider,
+          prevEditorState,
+          editorState,
+          dirtyElements,
+          dirtyLeaves,
+          normalizedNodes,
+          tags
+        )
+      }
+    }
+  )
+
+  return { editor, doc: copyTarget }
 }
 
 /**
- * @param {Array<PrismaTypes.YPostUpdate>} postUpdates
+ * @param {YDoc} yDoc
+ */
+export function encodeYDocToUpdateV2 (yDoc) {
+  const yjsUpdateState = Y.encodeStateAsUpdateV2(yDoc)
+
+  return yjsUpdateState
+}
+
+/**
+ * @param {Array<Prisma.YPostUpdate>} postUpdates
  */
 export function postUpdatesToUint8Arr (postUpdates) {
   return postUpdates.map(({ content }) => base64ToUint8Array(content))
@@ -59,10 +104,10 @@ export function mergePostUpdates (arrOfUint8Arr) {
 }
 
 /**
- * @param {Uint8Array}
+ * @param {Uint8Array} update
  */
 export function getStateVectorFromUpdate (update) {
-  return Y.encodeStateVectorFromUpdate(update)
+  return Y.encodeStateVectorFromUpdateV2(update)
 }
 
 /**
@@ -70,5 +115,16 @@ export function getStateVectorFromUpdate (update) {
  * @param {Uint8Array} existingStateVector
  */
 export function diffUpdateUsingStateVector (newUpdate, existingStateVector) {
-  return Y.diffUpdate(newUpdate, existingStateVector)
+  return Y.diffUpdateV2(newUpdate, existingStateVector)
+}
+
+/**
+ * @param {Array<Prisma.YPostUpdate>} postUpdates
+ */
+export function yPostUpdatesToBase64 (postUpdates) {
+  const uint8ArrayArray = postUpdatesToUint8Arr(postUpdates)
+  const mergedUpdates = mergePostUpdates(uint8ArrayArray)
+  const base64String = uint8ArrayToBase64(mergedUpdates)
+
+  return base64String
 }

@@ -2,28 +2,25 @@ import { base64ToUint8Array } from 'uint8array-extras'
 
 import { InvalidEditor } from '../../errors.js'
 
-import { postWithPostUpdatesByPostId } from '../postHistory/postHistory.service.js'
-
 import { entityConfig } from './ppsl-cd-lexical-shared/src/editors/Entity/config.js'
 import { bioConfig } from './ppsl-cd-lexical-shared/src/editors/Bio/config.js'
-import toHTML from './ppsl-cd-lexical-shared/src/toHTML/index.js'
 import { SYSTEM_IDS } from './ppsl-cd-lexical-shared/src/editors/constants.js'
 import { bioEditorValidation, entityEditorValidation } from './lexical.service.js'
-import { mergePostUpdates, postUpdatesToUint8Arr, updateToJSON } from './yjs.js'
+import { getEditor } from './yjs.js'
 
 const { ENTITY, BIO, REVIEW } = SYSTEM_IDS
 
 const validator = {
   [ENTITY]: {
-    config: entityConfig({}, null),
+    config: entityConfig(null, false, null),
     validate: entityEditorValidation
   },
   [BIO]: {
-    config: bioConfig({}, null),
+    config: bioConfig(null, false, null),
     validate: bioEditorValidation
   },
   [REVIEW]: {
-    config: bioConfig({}, null),
+    config: bioConfig(null, false, null),
     validate: bioEditorValidation
   }
 }
@@ -67,25 +64,30 @@ export async function validateEntityEditor (request, reply, internalRequest) {
 
   if (body.length === 0) return InvalidEditor(reply)
 
+  let editor
+  /** @type {import('yjs').Doc} */
+  let doc
   let content
   try {
-    content = updateToJSON(entityConfig({}, null), base64ToUint8Array(body.content))
-
-    // get existing data for document (and then run Y.mergeUpdatesV2 or forEach update applyUpdateV2)
-    // Y.applyUpdateV2(content, new Uint8Array(atob(body.content).split(',')))
-    // body.content should be compared to the existing data on the database.
+    const data = getEditor(entityConfig(null, false, null), base64ToUint8Array(body.content))
+    editor = data.editor
+    doc = data.doc
+    content = editor.getEditorState().toJSON()
   } catch (error) {
     return reply.status(400).send()
   }
 
-  const { result, error } = await entityEditorValidation(JSON.stringify(content))
+  const stringifiedJSON = JSON.stringify(content)
+  const { result, error } = await entityEditorValidation(editor, stringifiedJSON)
 
   if (internalRequest) {
     return {
       valid: result,
       error,
       rawContent: body.content,
-      content
+      content,
+      editor,
+      doc
     }
   }
 
@@ -95,8 +97,9 @@ export async function validateEntityEditor (request, reply, internalRequest) {
 /**
  * @param {{ type: string, update: Uint8Array | string }}
  * @param {Fastify.Reply} reply
+ * @param {boolean} internalRequest
  */
-export async function validateEditor ({ type, update }, reply) {
+export async function validateUpdate ({ type, update }, reply, internalRequest) {
   const { config, validate } = validator[type]
 
   let parsedUpdate
@@ -106,41 +109,34 @@ export async function validateEditor ({ type, update }, reply) {
     parsedUpdate = update
   }
 
+  let editor
+  let doc
   let content
   try {
-    content = updateToJSON(config, parsedUpdate)
+    const data = getEditor(config, parsedUpdate)
+    editor = data.editor
+    doc = data.doc
+    content = editor.getEditorState().toJSON()
   } catch (error) {
     return reply.status(400).send()
   }
 
-  const { result, error } = await validate(JSON.stringify(content))
+  const stringifiedJSON = JSON.stringify(content)
+  const { result, error } = await validate(editor, stringifiedJSON)
 
-  return {
+  const response = {
     valid: result,
     error,
     content
   }
-}
 
-/**
- * @param {Fastify.Request} request
- * @param {Fastify.Reply} reply
- */
-export async function lexicalHTMLTransform (request, reply) {
-  const { id } = request.params
+  if (internalRequest) {
+    return {
+      ...response,
+      editor,
+      doc
+    }
+  }
 
-  const post = await postWithPostUpdatesByPostId(request.server.prisma, id)
-
-  const systemRelations = post.outRelations
-
-  const entity = systemRelations.some((sysRelation) => sysRelation.toPostId === ENTITY) && ENTITY
-  const bio = systemRelations.some((sysRelation) => sysRelation.toPostId === BIO) && BIO
-  const review = systemRelations.some((sysRelation) => sysRelation.toPostId === REVIEW) && REVIEW
-
-  const { config } = validator[entity || bio || review]
-
-  const update = mergePostUpdates(postUpdatesToUint8Arr(post.postUpdates))
-  const editorState = updateToJSON(config, update)
-
-  return await toHTML(JSON.stringify(editorState), entity || bio || review)
+  return response
 }

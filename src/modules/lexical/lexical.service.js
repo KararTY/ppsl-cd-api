@@ -1,13 +1,22 @@
-import lexical from 'lexical'
-import lexicalHeadless from '@lexical/headless'
-import { bioConfig } from './ppsl-cd-lexical-shared/src/editors/Bio/config.js'
-import { defaultTheme, readOnlyTheme } from './ppsl-cd-lexical-shared/src/editors/theme.js'
-import { entityConfig } from './ppsl-cd-lexical-shared/src/editors/Entity/config.js'
+import { uint8ArrayToBase64 } from 'uint8array-extras'
+import * as lexical from 'lexical'
+
 import { $isEntityContainerNode } from './ppsl-cd-lexical-shared/src/editors/plugins/EntityContainer/node.js'
+import {
+  INSERT_ENTITYCONTAINER_COMMAND,
+  registerInsertEntityContainerCommand
+} from './ppsl-cd-lexical-shared/src/editors/plugins/EntityContainer/commands.js'
 import { $isEntityImageNode } from './ppsl-cd-lexical-shared/src/editors/plugins/EntityImage/node.js'
 import { $isEntityShortDescriptionNode } from './ppsl-cd-lexical-shared/src/editors/plugins/EntityShortDescription/node.js'
 import { $isEntityLongDescriptionNode } from './ppsl-cd-lexical-shared/src/editors/plugins/EntityLongDescription/node.js'
 import { EntityMentionNode } from './ppsl-cd-lexical-shared/src/editors/plugins/EntityMention/node.js'
+import { SYSTEM_IDS } from './ppsl-cd-lexical-shared/src/editors/constants.js'
+import { entityConfig } from './ppsl-cd-lexical-shared/src/editors/Entity/config.js'
+import { bioConfig } from './ppsl-cd-lexical-shared/src/editors/Bio/config.js'
+import { getEditor } from './yjs.js'
+import * as yjs from './yjs.mjs'
+
+const { Y } = yjs
 
 const {
   $getRoot,
@@ -17,11 +26,17 @@ const {
   ParagraphNode,
   $nodesOfType
 } = lexical
-const { createHeadlessEditor } = lexicalHeadless
+
+const { ENTITY, BIO, REVIEW } = SYSTEM_IDS
+const configs = {
+  [ENTITY]: entityConfig(null, false, null),
+  [BIO]: bioConfig(null, false, null),
+  [REVIEW]: bioConfig(null, false, null)
+}
 
 /**
- * @param {import('lexical').LexicalEditor} editor
- * @param {import('lexical').LexicalNode} node
+ * @param {Lexical.LexicalEditor} editor
+ * @param {Lexical.LexicalNode} node
  */
 const sanitizeNode = (editor, node) => {
   if ($isElementNode(node)) {
@@ -33,8 +48,8 @@ const sanitizeNode = (editor, node) => {
 }
 
 /**
- * @param {import('lexical').LexicalEditor} editor
- * @param {import('lexical').LexicalNode} node
+ * @param {Lexical.LexicalEditor} editor
+ * @param {Lexical.LexicalNode} node
  */
 const onlyTextNodes = (editor, children) => {
   for (let index = 0; index < children.length; index++) {
@@ -49,18 +64,11 @@ const onlyTextNodes = (editor, children) => {
   }
 }
 
-export async function bioEditorValidation (stringifiedJSON) {
-  const theme = { ...defaultTheme, ...readOnlyTheme }
-  const config = bioConfig(theme, undefined, (error) => {
-    console.error(error)
-  })
-  const bioEditor = createHeadlessEditor(config)
-
-  const nextEditorState = bioEditor.parseEditorState(stringifiedJSON)
-
-  bioEditor.setEditorState(nextEditorState)
-
-  bioEditor.registerNodeTransform(ParagraphNode, (node) => {
+/**
+ * @param {Lexical.LexicalEditor} editor
+ */
+export async function bioEditorValidation (editor, stringifiedJSON) {
+  editor.registerNodeTransform(ParagraphNode, (node) => {
     const parent = node.getParent()
 
     if (parent instanceof ParagraphNode) {
@@ -71,36 +79,31 @@ export async function bioEditorValidation (stringifiedJSON) {
     }
   })
 
-  bioEditor.update(() => {
+  editor.read(() => {
     const root = $getRoot()
-    sanitizeNode(bioEditor, root)
-  }, { discrete: true })
+    sanitizeNode(editor, root)
+  })
+
   await Promise.resolve().then()
 
-  return stringifiedJSON === JSON.stringify(bioEditor.getEditorState().toJSON())
+  return stringifiedJSON === JSON.stringify(editor.getEditorState().toJSON())
 }
 
-function validateEntityEditor (stringifiedJSON) {
+/**
+ * @param {Lexical.LexicalEditor} editor
+ */
+const validateEntityEditor = (editor) => {
   return new Promise((resolve, reject) => {
-    const theme = { ...defaultTheme, ...readOnlyTheme }
-    const config = entityConfig(theme, undefined, (error) => {
-      console.error(error)
-      reject(error)
-    })
-
-    const entityEditor = createHeadlessEditor(config)
-
-    const nextEditorState = entityEditor.parseEditorState(stringifiedJSON)
-    entityEditor.setEditorState(nextEditorState)
-
-    entityEditor.update(() => {
+    editor.read(() => {
       const root = $getRoot()
-      sanitizeNode(entityEditor, root)
+      sanitizeNode(editor, root)
 
       // Make sure last child is entity-container
       const entityContainer = root.getLastChild()
       if (!$isEntityContainerNode(entityContainer)) {
-        throw new Error(`First child is "${entityContainer.getType()}" and not "entity-container".`)
+        throw new Error(
+          `First child is "${entityContainer.getType()}" and not "entity-container".`
+        )
       }
 
       // Make sure root only has one child.
@@ -111,33 +114,42 @@ function validateEntityEditor (stringifiedJSON) {
       // Make sure first child of entity-container is entity-image
       const entityImage = entityContainer.getFirstChild()
       if (!$isEntityImageNode(entityImage)) {
-        throw new Error(`First child of "entity-container" is "${entityImage.getType()}" and not "entity-image".`)
+        throw new Error(
+          `First child of "entity-container" is "${entityImage.getType()}" and not "entity-image".`
+        )
       }
 
       // Make sure second child of entity-container is entity-short-description
       const entityShortDescription = entityContainer.getChildAtIndex(1)
       if (!$isEntityShortDescriptionNode(entityShortDescription)) {
-        throw new Error(`Second child of "entity-container" is "${entityImage.getType()}" and not "entity-short-description".`)
+        throw new Error(
+          `Second child of "entity-container" is "${entityImage.getType()}" and not "entity-short-description".`
+        )
       }
 
-      onlyTextNodes(entityEditor, entityShortDescription.getChildren())
+      onlyTextNodes(editor, entityShortDescription.getChildren())
 
       // Make sure last child of entity-container is entity-long-description
       const entityLongDescription = entityContainer.getLastChild()
       if (!$isEntityLongDescriptionNode(entityLongDescription)) {
-        throw new Error(`Last child of "entity-container" is "${entityImage.getType()}" and not "entity-long-description".`)
+        throw new Error(
+          `Last child of "entity-container" is "${entityImage.getType()}" and not "entity-long-description".`
+        )
       }
 
-      onlyTextNodes(entityEditor, entityLongDescription.getChildren())
+      onlyTextNodes(editor, entityLongDescription.getChildren())
 
-      resolve(entityEditor)
+      resolve(editor)
     })
   })
 }
 
-export async function entityEditorValidation (stringifiedJSON) {
+/**
+ * @param {Lexical.LexicalEditor} editor
+ */
+export const entityEditorValidation = async (editor, stringifiedJSON) => {
   try {
-    const entityEditor = await validateEntityEditor(stringifiedJSON)
+    const entityEditor = await validateEntityEditor(editor)
     const res = JSON.stringify(entityEditor.getEditorState().toJSON())
     return { result: stringifiedJSON === res, error: null }
   } catch (error) {
@@ -146,22 +158,12 @@ export async function entityEditorValidation (stringifiedJSON) {
 }
 
 /**
- * @param {string} stringifiedJSON
+ * @param {Lexical.LexicalEditor} editor
  * @returns {Promise<string[]>}
  */
-function entityMentions (stringifiedJSON) {
+export const getEntityMentions = (editor) => {
   return new Promise((resolve, reject) => {
-    const config = entityConfig({}, undefined, (error) => {
-      console.error(error)
-      reject(error)
-    })
-
-    const entityEditor = createHeadlessEditor(config)
-
-    const nextEditorState = entityEditor.parseEditorState(stringifiedJSON)
-    entityEditor.setEditorState(nextEditorState)
-
-    entityEditor.update(() => {
+    editor.read(() => {
       const entityMentions = $nodesOfType(EntityMentionNode)
 
       const postIds = entityMentions.map((node) => node.getPostId())
@@ -171,9 +173,68 @@ function entityMentions (stringifiedJSON) {
   })
 }
 
-/**
- * @param {string} stringifiedJSON
- */
-export async function getEntityMentions (stringifiedJSON) {
-  return await entityMentions(stringifiedJSON)
+export const defaultUpdate = {
+  [ENTITY]: (() => {
+    let emptyUpdate
+
+    {
+      const yDoc = new Y.Doc()
+      yDoc.get('root', Y.XmlText)
+      emptyUpdate = Y.encodeStateAsUpdateV2(yDoc)
+    }
+
+    const config = configs[ENTITY]
+
+    const { editor, doc } = getEditor(config, emptyUpdate)
+
+    registerInsertEntityContainerCommand(editor)
+
+    editor.update(
+      () => {
+        editor.dispatchCommand(INSERT_ENTITYCONTAINER_COMMAND)
+      },
+      { discrete: true }
+    )
+
+    const base64 = uint8ArrayToBase64(Y.encodeStateAsUpdateV2(doc))
+
+    return base64
+  })(),
+  [BIO]: (() => {
+    let emptyUpdate
+
+    {
+      const yDoc = new Y.Doc()
+      yDoc.get('root', Y.XmlText)
+      emptyUpdate = Y.encodeStateAsUpdateV2(yDoc)
+    }
+    const config = configs[BIO]
+
+    const { editor, doc } = getEditor(config, emptyUpdate)
+
+    editor.update(() => {}, { discrete: true })
+
+    const base64 = uint8ArrayToBase64(Y.encodeStateAsUpdateV2(doc))
+
+    return base64
+  })(),
+  [REVIEW]: (() => {
+    let emptyUpdate
+
+    {
+      const yDoc = new Y.Doc()
+      yDoc.get('root', Y.XmlText)
+      emptyUpdate = Y.encodeStateAsUpdateV2(yDoc)
+    }
+
+    const config = configs[REVIEW]
+
+    const { editor, doc } = getEditor(config, emptyUpdate)
+
+    editor.update(() => {}, { discrete: true })
+
+    const base64 = uint8ArrayToBase64(Y.encodeStateAsUpdateV2(doc))
+
+    return base64
+  })()
 }
