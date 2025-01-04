@@ -9,7 +9,6 @@
   "standard.autoFixOnSave": true,
   "standard.validate": [
     "javascript",
-    "javascriptreact",
   ],
   "javascript.validate.enable": false,
   "javascript.format.enable": false

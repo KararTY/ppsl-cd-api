@@ -1,6 +1,16 @@
 {
   "compilerOptions": {
-    "typeRoots": ["src/**/*.d.ts"]
+    "typeRoots": [
+      "src/**/*.d.ts"
+    ],
+    "allowJs": true,
+    "checkJs": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "strict": true,
   },
   "include": [
     // Add all paths you want intellisense to work

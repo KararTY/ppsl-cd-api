@@ -82,7 +82,7 @@ model Post {
   inRelations  PostRelation[] @relation("toPost") /// Used for relations to (Manual - By script).
   outRelations PostRelation[] @relation("fromPost") /// Used for relations from (Has been applied to).
 
-  lastUpdated      DateTime @default(now())
+  lastUpdated      DateTime @default(now()) @updatedAt
   createdTimestamp DateTime @default(now())
 
   reviewedBy PostReview[] @relation("toPost")
@@ -168,11 +168,15 @@ model YPost {
 
   postUpdates YPostUpdate[]
 
-  lastUpdated      DateTime @default(now())
-  createdTimestamp DateTime @default(now())
+  html Html?
+
+  totalByteLength BigInt?
 
   reviewedBy YPostReview[] @relation("toPost")
   reviewing  YPostReview?  @relation("fromPost")
+
+  lastUpdated      DateTime @default(now()) @updatedAt
+  createdTimestamp DateTime @default(now())
 }
 
 model YPostRelation {
@@ -207,6 +211,8 @@ model YPostUpdateMetadata {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 
+  byteLength BigInt?
+
   postUpdate YPostUpdate?
 }
 
@@ -223,4 +229,16 @@ model YPostReview {
 
   toPost   YPost  @relation("toPost", fields: [toPostId], references: [id], onDelete: Cascade)
   toPostId String
+}
+
+model Html {
+  id String @id @default(cuid())
+
+  post   YPost  @relation(fields: [postId], references: [id])
+  postId String @unique
+
+  content String
+
+  lastUpdated      DateTime @default(now()) @updatedAt
+  createdTimestamp DateTime @default(now())
 }
