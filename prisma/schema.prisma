@@ -23,11 +23,13 @@ model Account {
   refresh_token     String? @db.Text
   access_token      String? @db.Text
   expires_at        Int?
-  expires_in        Int?
   token_type        String?
   scope             String?
   id_token          String? @db.Text
   session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -36,11 +38,22 @@ model Account {
 
 // Auth.js
 model Session {
-  id           String   @id @default(cuid())
   sessionToken String   @unique
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+// Auth.js
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
 }
 
 // Auth.js
@@ -53,21 +66,11 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  postsMetadata        PostMetadata[]
-  yPostUpdatesMetadata YPostUpdateMetadata[]
+  postUpdatesMetadata YPostUpdateMetadata[]
 
   createdTimestamp DateTime @default(now())
 
-  postReviews PostReview[]
-}
-
-// Auth.js
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
-
-  @@unique([identifier, token])
+  postReviews YPostReview[]
 }
 
 // Data
@@ -83,8 +86,7 @@ model Post {
   createdTimestamp DateTime @default(now())
 
   reviewedBy PostReview[] @relation("toPost")
-
-  reviewing PostReview? @relation("fromPost")
+  reviewing  PostReview?  @relation("fromPost")
 }
 
 model PostRelation {
@@ -120,7 +122,6 @@ model PostHistory {
 model PostMetadata {
   id String @id @default(cuid())
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String
 
   postHistory PostHistory?
@@ -137,7 +138,6 @@ model PostReview {
 
   type PostReviewTypes
 
-  user   User   @relation(fields: [userId], references: [id])
   userId String
 
   fromPost   Post?   @relation("fromPost", fields: [fromPostId], references: [id], onDelete: Cascade)
@@ -170,6 +170,9 @@ model YPost {
 
   lastUpdated      DateTime @default(now())
   createdTimestamp DateTime @default(now())
+
+  reviewedBy YPostReview[] @relation("toPost")
+  reviewing  YPostReview?  @relation("fromPost")
 }
 
 model YPostRelation {
@@ -205,4 +208,19 @@ model YPostUpdateMetadata {
   userId String
 
   postUpdate YPostUpdate?
+}
+
+model YPostReview {
+  id String @id @default(cuid())
+
+  type PostReviewTypes
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  fromPost   YPost?  @relation("fromPost", fields: [fromPostId], references: [id], onDelete: Cascade)
+  fromPostId String? @unique
+
+  toPost   YPost  @relation("toPost", fields: [toPostId], references: [id], onDelete: Cascade)
+  toPostId String
 }
