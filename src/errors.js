@@ -1,7 +1,8 @@
 import fastify from 'fastify'
 const { errorCodes: errors } = fastify
 
-export default errors
+// Unused
+// export default errors
 
 /**
  * @param {Fastify.Reply} reply
